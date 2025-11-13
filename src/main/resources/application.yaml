@@ -1,3 +1,24 @@
 spring:
   application:
     name: FASTConnect
+  datasource:
+    url: jdbc:postgresql://localhost:5432/fastconnect
+    username: fastuser
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      idle-timeout: 30000
+      max-lifetime: 1800000
+
+  jpa:
+    hibernate:
+      ddl-auto: update       # Automatically creates/updates tables based on your entities
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+
+
+server:
+  port: 8080
