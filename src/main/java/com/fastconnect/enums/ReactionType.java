@@ -1,4 +1,5 @@
 package com.fastconnect.enums;
 
-public enum ReactionType {
+public enum RoleType {
+    STUDENT, FACULTY, SOCIETY_ADMIN, ADMIN
 }
