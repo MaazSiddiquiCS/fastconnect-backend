@@ -23,15 +23,15 @@ public class User {
     private Long user_id;
 
     @Email
-    @NotBlank
+    @NotBlank(message = "Email is required")
     @Column(unique = true, nullable = false)
     private String email;
 
-    @NotBlank
+    @NotBlank(message = "Password is required")
     @Column(nullable = false)
     private String password;
 
-    @NotBlank
+    @NotBlank(message = "Roll number is required")
     @Column(unique = true, nullable = false)
     private String roll_number;
 
