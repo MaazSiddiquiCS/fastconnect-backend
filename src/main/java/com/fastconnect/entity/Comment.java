@@ -3,13 +3,9 @@ package com.fastconnect.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "profile")
-public class Profile {
+@Table(name = "comment")
+public class Comment{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long profile_id;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    private Long comment_id;
 }
