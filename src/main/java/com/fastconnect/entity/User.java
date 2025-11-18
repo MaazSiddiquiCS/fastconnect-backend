@@ -5,6 +5,7 @@ import com.fastconnect.enums.RoleType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -35,10 +36,12 @@ public class User {
     @Column(unique = true, nullable = false)
     private String roll_number;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "account_status", nullable = false)
     private AccountStatus account_status=AccountStatus.ACTIVE;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "role_type", nullable = false)
     private RoleType role_type=RoleType.STUDENT;

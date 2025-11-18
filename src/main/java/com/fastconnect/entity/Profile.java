@@ -3,8 +3,13 @@ package com.fastconnect.entity;
 import com.fastconnect.enums.Departments;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.validator.constraints.URL;
 
+
+@Getter
+@Setter
 @Entity
 @Table(name = "profile")
 public class Profile {
@@ -23,6 +28,7 @@ public class Profile {
 
     @Min(2018)
     @Max(2026)
+    @NotNull(message = "Required batch")
     @Column(nullable = false)
     private Integer batch;
 
