@@ -1,11 +1,58 @@
 package com.fastconnect.entity;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.validator.constraints.URL;
 
-public class  Post{
+import java.util.HashSet;
+import java.util.Set;
+
+@Getter
+@Setter
+@Entity
+@Table(name = "posts")
+public class Post {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long post_id;
+
+    @NotBlank(message = "Post content cannot be blank")
+    @Column(columnDefinition = "TEXT")
+    private String content;
+
+    @URL
+    @Column(name = "media_url", nullable = true)
+    private String media_url;
+
+    @Column(name = "is_pinned", nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
+    private boolean is_pinned = false;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @OneToMany(
+            mappedBy = "post", // "post" is the field name in the Comment entity
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+                    )
+    private Set<Comment> comments = new HashSet<>();
+
+    @OneToMany(
+            mappedBy = "post", // "post" is the field name in the Reaction entity
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private Set<Reaction> reactions = new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "post_hashtag",
+            joinColumns = @JoinColumn(name = "post_id"),
+            inverseJoinColumns = @JoinColumn(name = "hashtag_id")
+    )
+    private Set<Hashtag> hashtags = new HashSet<>();
 }
