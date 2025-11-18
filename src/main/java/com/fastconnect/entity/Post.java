@@ -9,6 +9,8 @@ import org.hibernate.validator.constraints.URL;
 import java.util.HashSet;
 import java.util.Set;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Entity
@@ -30,22 +32,20 @@ public class Post {
     @Column(name = "is_pinned", nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
     private boolean is_pinned = false;
 
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime created_at;
+
+    @Column(nullable = false)
+    private LocalDateTime updated_at;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToMany(
-            mappedBy = "post", // "post" is the field name in the Comment entity
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-                    )
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Comment> comments = new HashSet<>();
 
-    @OneToMany(
-            mappedBy = "post", // "post" is the field name in the Reaction entity
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Reaction> reactions = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -55,4 +55,15 @@ public class Post {
             inverseJoinColumns = @JoinColumn(name = "hashtag_id")
     )
     private Set<Hashtag> hashtags = new HashSet<>();
+
+    @PrePersist
+    protected void onCreate() {
+        created_at = LocalDateTime.now();
+        updated_at = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updated_at = LocalDateTime.now();
+    }
 }

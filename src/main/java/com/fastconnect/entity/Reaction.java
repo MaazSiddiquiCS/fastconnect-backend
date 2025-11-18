@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Entity
@@ -14,9 +16,9 @@ import lombok.Setter;
                 @UniqueConstraint(
                         name = "uk_user_post_reaction",
                         columnNames = {"user_id", "post_id"}
-               )
+                )
         }
-        )
+)
 public class Reaction {
 
     @Id
@@ -27,6 +29,9 @@ public class Reaction {
     @Column(name = "reaction_type", nullable = false)
     private ReactionType reactionType;
 
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime created_at;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -34,4 +39,9 @@ public class Reaction {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
+
+    @PrePersist
+    protected void onCreate() {
+        created_at = LocalDateTime.now();
+    }
 }
