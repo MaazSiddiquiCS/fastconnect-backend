@@ -1,52 +1,42 @@
 package com.fastconnect.entity;
 
-import com.fastconnect.enums.SocietyRoles;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
 @Getter
 @Setter
 @Entity
 @Table(
-        name = "society_membership",
+        name = "society_followers",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = {"society_id","user_id"})
         }
 )
-public class SocietyMembership {
+public class SocietyFollowers {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long membership_id;
-
-    @NotNull(message = "Role is mandatory")
-    @Column(length = 30,nullable = false)
-    @Enumerated(EnumType.STRING)
-    private SocietyRoles  society_role;
+    private Long society_followers_id;
 
     @NotNull
     @Column(nullable = false)
-    private LocalDateTime joined_at;
-
-    @NotNull
-    @Column(nullable = false)
-    private Boolean active;
+    private LocalDateTime followed_at;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "society_id")
+    @JoinColumn(name = "society_id", nullable = false)
     private Society society;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @PrePersist
     public void prePersist() {
-        if (joined_at == null) joined_at = LocalDateTime.now();
-        if (active == null) active = true;
+        if (followed_at == null) {
+            followed_at = LocalDateTime.now();
+        }
     }
 }

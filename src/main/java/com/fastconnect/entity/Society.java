@@ -35,7 +35,7 @@ public class Society {
     private String cover_pic;
 
     @Size(max = 500)
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", length = 500)
     private String description;
 
     @NotNull(message = "Enter a category")
@@ -46,7 +46,10 @@ public class Society {
     private Boolean verified;
 
     @OneToMany(mappedBy = "society", cascade = CascadeType.ALL)
-    private List<SocietyMembership> societyMemberships ;
+    private Set<SocietyMembership> societyMemberships ;
+
+    @OneToMany(mappedBy = "society", cascade = CascadeType.ALL)
+    private Set<SocietyFollowers> followers;
 
     @PrePersist
     public void prePersist() {

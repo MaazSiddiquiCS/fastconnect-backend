@@ -53,5 +53,5 @@ public class User {
     private Profile profile;
 
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
-    private List<SocietyMembership> societyMemberships;
+    private Set<SocietyMembership> societyMemberships;
 }
