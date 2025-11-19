@@ -9,6 +9,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.URL;
 
+import java.util.List;
+import java.util.Set;
+
 @Getter
 @Setter
 @Entity
@@ -31,7 +34,7 @@ public class Society {
     @Column(columnDefinition = "TEXT")
     private String cover_pic;
 
-    @Size(max = 255)
+    @Size(max = 500)
     @Column(columnDefinition = "TEXT")
     private String description;
 
@@ -41,6 +44,9 @@ public class Society {
 
     @Column(nullable = false)
     private Boolean verified;
+
+    @OneToMany(mappedBy = "society", cascade = CascadeType.ALL)
+    private List<SocietyMembership> societyMemberships ;
 
     @PrePersist
     public void prePersist() {

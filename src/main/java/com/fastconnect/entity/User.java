@@ -9,6 +9,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+import java.util.Set;
+
 @Getter
 @Setter
 @Entity
@@ -48,4 +51,7 @@ public class User {
 
     @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
     private Profile profile;
+
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
+    private List<SocietyMembership> societyMemberships;
 }
