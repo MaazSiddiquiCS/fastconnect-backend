@@ -35,10 +35,6 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @NotBlank(message = "Roll number is required")
-    @Column(unique = true, nullable = false)
-    private String roll_number;
-
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "account_status", nullable = false)

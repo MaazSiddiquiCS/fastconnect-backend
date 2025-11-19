@@ -53,11 +53,11 @@ public class Society {
 
     @PrePersist
     public void prePersist() {
-        verified = false;
+        this.verified = false;
 
-        if(category == null)
+        if(this.category == null)
         {
-            category = SocietyCategory.OTHERS;
+            this.category = SocietyCategory.OTHERS;
         }
     }
 }

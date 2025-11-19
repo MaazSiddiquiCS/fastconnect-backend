@@ -35,8 +35,8 @@ public class SocietyFollowers {
 
     @PrePersist
     public void prePersist() {
-        if (followed_at == null) {
-            followed_at = LocalDateTime.now();
+        if (this.followed_at == null) {
+            this.followed_at = LocalDateTime.now();
         }
     }
 }

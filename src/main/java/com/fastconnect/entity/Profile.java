@@ -21,6 +21,10 @@ public class Profile {
     @Column(length = 50, nullable = false)
     private String full_name;
 
+    @NotBlank(message = "Roll number is required")
+    @Column(unique = true, nullable = false)
+    private String roll_number;
+
     @NotNull(message = "Required Department")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

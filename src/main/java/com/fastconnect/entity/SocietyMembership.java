@@ -46,7 +46,7 @@ public class SocietyMembership {
 
     @PrePersist
     public void prePersist() {
-        if (joined_at == null) joined_at = LocalDateTime.now();
-        if (active == null) active = true;
+        if (this.joined_at == null) this.joined_at = LocalDateTime.now();
+        if (this.active == null) this.active = true;
     }
 }

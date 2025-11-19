@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.hibernate.annotations.Check;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -42,7 +43,11 @@ public class AuthToken {
 
     @PrePersist
     public void prePersist() {
-        issued_at = new Timestamp(System.currentTimeMillis());
-        revoked=false;
+        if(this.issued_at == null) {
+            this.issued_at = Timestamp.from(Instant.now());
+        }
+        if(this.revoked == null) {
+            this.revoked = false;
+        }
     }
 }
