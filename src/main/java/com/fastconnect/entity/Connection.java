@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Check;
 
 import java.time.LocalDateTime;
 
@@ -11,17 +12,22 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 @Table(
-        name = "connection",
+        name = "connections",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = {
                         "user1_id","user2_id"
                 })
         }
 )
+@Check(name = "chk_connection_order",constraints = "user1_id<user2_id")
 public class Connection {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE,generator = "connection_seq")
-    @SequenceGenerator(name = "connection_seq",sequenceName = "connection_sequence")
+    @SequenceGenerator(
+            name = "connection_seq",
+            sequenceName = "connection_sequence",
+            allocationSize = 50
+    )
     private Long connection_id;
 
     @NotNull

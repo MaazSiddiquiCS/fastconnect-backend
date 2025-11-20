@@ -50,4 +50,7 @@ public class User {
 
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
     private Set<SocietyMembership> societyMemberships;
+
+    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
+    private FacultyPage facultyPage;
 }

@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 @Table(
-        name = "connection_request",
+        name = "connection_requests",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = {
                         "sender_id","receiver_id"
@@ -26,7 +26,7 @@ public class ConnectionRequest {
     @SequenceGenerator(
             name = "connection_req_seq",
             sequenceName = "connection_req_sequence",
-            allocationSize = 20
+            allocationSize = 50
     )
     private Long connection_request_id;
 

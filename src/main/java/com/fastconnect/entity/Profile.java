@@ -21,8 +21,9 @@ public class Profile {
     @Column(length = 50, nullable = false)
     private String full_name;
 
+    @Size(min=8,max=8)
     @NotBlank(message = "Roll number is required")
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false,length = 8)
     private String roll_number;
 
     @NotNull(message = "Required Department")
