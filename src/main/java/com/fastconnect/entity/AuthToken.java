@@ -6,9 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Check;
-
-import java.sql.Timestamp;
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -27,11 +25,11 @@ public class AuthToken {
 
     @NotNull
     @Column(nullable = false)
-    private Timestamp issued_at;
+    private LocalDateTime issued_at;
 
     @NotNull
     @Column(nullable = false)
-    private Timestamp expires_in;
+    private LocalDateTime expires_in;
 
     @NotNull
     @Column(nullable = false)
@@ -44,7 +42,7 @@ public class AuthToken {
     @PrePersist
     public void prePersist() {
         if(this.issued_at == null) {
-            this.issued_at = Timestamp.from(Instant.now());
+            this.issued_at =  LocalDateTime.now();
         }
         if(this.revoked == null) {
             this.revoked = false;
