@@ -13,11 +13,21 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name = "reels")
+@Table(
+        name = "reels",
+        indexes = {
+                @Index(name = "idx_reel_user", columnList = "user_id")
+        }
+)
 public class Reel {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "reel_seq")
+    @SequenceGenerator(
+            name = "reel_seq",
+            sequenceName = "reel_sequence",
+            allocationSize = 50
+    )
     private Long reel_id;
 
     @NotBlank(message = "Video URL is required")

@@ -22,7 +22,12 @@ import java.time.LocalDateTime;
 public class Reaction {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "reaction_seq")
+    @SequenceGenerator(
+            name = "reaction_seq",
+            sequenceName = "reaction_sequence",
+            allocationSize = 50
+    )
     private Long reaction_id;
 
     @Enumerated(EnumType.STRING)

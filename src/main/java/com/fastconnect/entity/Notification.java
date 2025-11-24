@@ -1,7 +1,9 @@
 package com.fastconnect.entity;
 
+import com.fastconnect.enums.EntityType;
 import com.fastconnect.enums.NotificationType;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
@@ -15,11 +17,21 @@ import java.time.LocalDateTime;
 public class Notification {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "notification_seq")
+    @SequenceGenerator(
+            name = "notification_seq",
+            sequenceName = "notification_sequence",
+            allocationSize = 50
+    )
     private Long notification_id;
 
-    @Column(name = "reference_id", nullable = false)
-    private Long referenceId;
+    @NotNull(message = "Required entity type whose notification is created")
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false,length = 50)
+    private EntityType notification_type;
+
+    @Column(nullable = false)
+    private Long reference_id;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -29,7 +41,7 @@ public class Notification {
     private String message;
 
     @Column(name = "is_read", nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
-    private boolean isRead = false;
+    private boolean isRead;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

@@ -13,10 +13,16 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update       # Automatically creates/updates tables based on your entities
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_batch_fetch_size: 25
+        order_updates: true  # Orders UPDATE statements for batching (already correct position)
+        order_inserts: true  # <--- ADD THIS! Orders INSERT statements for batching
+        jdbc:
+          batch_size: 50     # WRITE BATCHING: Max 50 inserts/updates per network call
+
     show-sql: true
 
 

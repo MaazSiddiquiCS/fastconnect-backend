@@ -24,6 +24,10 @@ import java.util.Set;
                                 "target_id"
                         }
                 )
+        },
+        indexes = {
+                @Index(name = "idx_flag_target", columnList = "target_type, target_id"),
+                @Index(name = "idx_flag_flaggedby", columnList = "flagged_by")
         }
 )
 public class Flag {
@@ -67,7 +71,7 @@ public class Flag {
     @JoinColumn(name = "flagged_by")
     private User flaggedBy;
 
-    @OneToMany(mappedBy = "flag", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "flag", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE,orphanRemoval = true)
     private Set<FlagReportLink> flag_report_links;
 
     @PrePersist

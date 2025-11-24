@@ -15,7 +15,12 @@ import java.util.Set;
 public class Hashtag {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hashtag_seq")
+    @SequenceGenerator(
+            name = "hashtag_seq",
+            sequenceName = "hashtag_sequence",
+            allocationSize = 50
+    )
     private Long hashtag_id;
 
     @NotBlank(message = "Tag name is required")

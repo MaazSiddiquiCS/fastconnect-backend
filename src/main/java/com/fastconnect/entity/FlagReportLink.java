@@ -9,10 +9,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(
-        name = "flag_report_link",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"flag_id"})
-        }
+        name = "flag_report_link"
 )
 public class FlagReportLink {
 
@@ -28,8 +25,7 @@ public class FlagReportLink {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
             name = "flag_id",
-            nullable = false,
-            unique = true
+            nullable = false
     )
     private Flag flag;
     @NotNull

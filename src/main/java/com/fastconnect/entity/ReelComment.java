@@ -10,11 +10,22 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@Table(name = "reel_comments")
+@Table(
+        name = "reel_comments",
+        indexes = {
+                @Index(name = "idx_reel_comment_reel", columnList = "reel_id"),
+                @Index(name = "idx_reel_comment_user", columnList = "user_id")
+        }
+)
 public class ReelComment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "reel_comment_seq")
+    @SequenceGenerator(
+            name = "reel_comment_seq",
+            sequenceName = "reel_comment_sequence",
+            allocationSize = 50
+    )
     private Long reel_comment_id;
 
     @NotBlank(message = "Comment cannot be empty")

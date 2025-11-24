@@ -17,6 +17,9 @@ import java.time.LocalDateTime;
                 @UniqueConstraint(columnNames = {
                         "user1_id","user2_id"
                 })
+        },
+        indexes = {
+                @Index(name = "idx_connection_users", columnList = "user1_id, user2_id")
         }
 )
 @Check(name = "chk_connection_order",constraints = "user1_id<user2_id")

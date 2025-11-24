@@ -17,7 +17,12 @@ import org.hibernate.validator.constraints.URL;
 @DepartmentRequired
 public class FacultyPage {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "faculty_page_seq")
+    @SequenceGenerator(
+            name = "faculty_page_seq",
+            sequenceName = "faculty_page_sequence",
+            allocationSize = 50
+    )
     private Long faculty_id;
 
     @NotNull(message = "Name is requires")
@@ -49,7 +54,7 @@ public class FacultyPage {
     @Column(nullable = false)
     private Boolean is_verified;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name="user_id", nullable = false,unique = true)
     private User user;
 

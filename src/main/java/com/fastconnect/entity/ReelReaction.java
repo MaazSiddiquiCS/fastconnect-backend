@@ -19,7 +19,12 @@ import java.time.LocalDateTime;
 public class ReelReaction {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "reel_reaction_seq")
+    @SequenceGenerator(
+            name = "reel_reaction_seq",
+            sequenceName = "reel_reaction_sequence",
+            allocationSize = 50
+    )
     private Long reel_reaction_id;
 
     @Enumerated(EnumType.STRING)

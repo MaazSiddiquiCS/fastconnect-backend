@@ -18,7 +18,12 @@ import java.util.Set;
 @Table(name = "society")
 public class Society {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "society_seq")
+    @SequenceGenerator(
+            name = "society_seq",
+            sequenceName = "society_sequence",
+            allocationSize = 50
+    )
     private Long society_id;
 
     @NotBlank(message = "Society name is required")
@@ -45,10 +50,10 @@ public class Society {
     @Column(nullable = false)
     private Boolean verified;
 
-    @OneToMany(mappedBy = "society", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "society", cascade = CascadeType.ALL,orphanRemoval = true)
     private Set<SocietyMembership> societyMemberships ;
 
-    @OneToMany(mappedBy = "society", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "society", cascade = CascadeType.ALL,orphanRemoval = true)
     private Set<SocietyFollowers> followers;
 
     @PrePersist

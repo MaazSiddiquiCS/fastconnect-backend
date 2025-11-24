@@ -18,8 +18,13 @@ import java.time.LocalDateTime;
 )
 public class SocietyFollowers {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long society_followers_id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "society_followers_seq")
+    @SequenceGenerator(
+            name = "society_followers_seq",
+            sequenceName = "society_followers_sequence",
+            allocationSize = 50
+    )
+    private Long society_follower_id;
 
     @NotNull
     @Column(nullable = false)

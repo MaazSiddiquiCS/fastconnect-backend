@@ -50,7 +50,9 @@ public class Report {
     @JoinColumn(name = "moderator_id", nullable = false)
     private User moderator;
 
-    @OneToMany(mappedBy = "report", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "report", fetch = FetchType.LAZY,
+            cascade = CascadeType.REMOVE,orphanRemoval = true
+    )
     private Set<FlagReportLink> flag_report_links;
 
     @PrePersist

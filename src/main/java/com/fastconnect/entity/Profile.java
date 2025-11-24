@@ -14,7 +14,12 @@ import org.hibernate.validator.constraints.URL;
 @Table(name = "profile")
 public class Profile {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "profile_seq")
+    @SequenceGenerator(
+            name = "profile_seq",
+            sequenceName = "profile_sequence",
+            allocationSize = 50
+    )
     private Long profile_id;
 
     @NotBlank(message = "Name is required")
@@ -48,7 +53,7 @@ public class Profile {
     @Column(columnDefinition = "TEXT")
     private String cover_pic;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "user_id",unique = true,nullable = false)
     private User user;
 }

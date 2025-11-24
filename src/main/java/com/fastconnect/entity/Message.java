@@ -10,11 +10,22 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@Table(name = "messages")
+@Table(
+        name = "messages",
+        indexes = {
+                @Index(name = "idx_message_conv", columnList = "conversation_id"),
+                @Index(name = "idx_message_sender", columnList = "sender_id")
+        }
+)
 public class Message {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "message_seq")
+    @SequenceGenerator(
+            name = "message_seq",
+            sequenceName = "message_sequence",
+            allocationSize = 50
+    )
     private Long message_id;
 
     @NotBlank(message = "Message content cannot be empty")

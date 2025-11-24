@@ -11,11 +11,25 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@Table(name = "comments")
+@Table(
+        name = "comments",
+        indexes = {
+                @Index(name = "idx_comment_post", columnList = "post_id"),
+                @Index(name = "idx_comment_user", columnList = "user_id")
+        }
+)
 public class Comment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "comments_seq"
+    )
+    @SequenceGenerator(
+            name = "comments_seq",
+            sequenceName = "comment_sequence",
+            allocationSize = 50
+    )
     private Long comment_id;
 
     @NotBlank(message = "Comment cannot be blank")

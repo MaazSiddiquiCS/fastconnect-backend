@@ -16,11 +16,19 @@ import java.util.Set;
         name = "society_membership",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = {"society_id","user_id"})
+        },
+        indexes = {
+                @Index(name = "idx_mem_society_user", columnList = "society_id, user_id")
         }
 )
 public class SocietyMembership {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "society_membership_seq")
+    @SequenceGenerator(
+            name = "society_membership_seq",
+            sequenceName = "society_membership_sequence",
+            allocationSize = 50
+    )
     private Long membership_id;
 
     @NotNull(message = "Role is mandatory")

@@ -16,7 +16,12 @@ import java.util.Set;
 public class Conversation {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "conversation_seq")
+    @SequenceGenerator(
+            name = "conversation_seq",
+            sequenceName = "conversation_sequence",
+            allocationSize = 50
+    )
     private Long conversation_id;
 
     @Enumerated(EnumType.STRING)

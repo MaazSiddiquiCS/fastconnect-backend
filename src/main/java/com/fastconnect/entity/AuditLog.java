@@ -12,7 +12,13 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@Table(name = "audit_logs")
+@Table(
+        name = "audit_logs",
+        indexes = {
+                @Index(name = "idx_audit_user", columnList = "action_user_id"),
+                @Index(name = "idx_audit_target", columnList = "entity_type, entity_id")
+        }
+)
 public class AuditLog {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE,generator = "logs_seq")
@@ -28,7 +34,7 @@ public class AuditLog {
     @Column(nullable = false,length = 50)
     private ActionType action_type;
 
-    @NotNull(message = "Required enity type")
+    @NotNull(message = "Required entity type")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false,length = 50)
     private EntityType entity_type;

@@ -17,13 +17,15 @@ import java.util.Set;
 @Entity
 @Table(
         name = "users"
-//        ,indexes = {
-//        @Index(name="idx_accountStatus",columnList = "account_status"),
-//    @Index(name = "idx_roleType",columnList = "role_type")}
 )
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_seq")
+    @SequenceGenerator(
+            name = "user_seq",
+            sequenceName = "user_sequence",
+            allocationSize = 50
+    )
     private Long user_id;
 
     @Email
@@ -48,7 +50,7 @@ public class User {
     @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
     private Profile profile;
 
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,orphanRemoval = true)
     private Set<SocietyMembership> societyMemberships;
 
     @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)

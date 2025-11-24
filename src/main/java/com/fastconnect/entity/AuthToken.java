@@ -11,11 +11,24 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@Table(name = "auth_tokens")
-@Check(name = "chk_expiry", constraints = "expires_in>issued_at")
+@Table(
+        name = "auth_tokens",
+        indexes = {
+                @Index(name = "idx_token_user", columnList = "user_id")
+        }
+)
+@Check(name = "chk_expiry", constraints = "expires_at>issued_at")
 public class AuthToken {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "auth_token_seq"
+    )
+    @SequenceGenerator(
+            name = "auth_token_seq",
+            sequenceName = "auth_token_sequence",
+            allocationSize = 50
+    )
     private Long token_id;
 
     @NotNull
@@ -29,7 +42,7 @@ public class AuthToken {
 
     @NotNull
     @Column(nullable = false)
-    private LocalDateTime expires_in;
+    private LocalDateTime expires_at;
 
     @NotNull
     @Column(nullable = false)

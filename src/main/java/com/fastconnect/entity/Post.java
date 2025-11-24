@@ -14,11 +14,21 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@Table(name = "posts")
+@Table(
+        name = "posts",
+        indexes = {
+                @Index(name = "idx_post_user", columnList = "user_id")
+        }
+)
 public class Post {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "post_seq")
+    @SequenceGenerator(
+            name = "post_seq",
+            sequenceName = "post_sequence",
+            allocationSize = 50
+    )
     private Long post_id;
 
     @NotBlank(message = "Post content cannot be blank")
@@ -30,7 +40,7 @@ public class Post {
     private String media_url;
 
     @Column(name = "is_pinned", nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
-    private boolean is_pinned = false;
+    private boolean is_pinned;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime created_at;

@@ -19,7 +19,12 @@ import java.util.Set;
 public class Event {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "event_seq")
+    @SequenceGenerator(
+            name = "event_seq",
+            sequenceName = "event_sequence",
+            allocationSize = 50
+    )
     private Long event_id;
 
     @NotBlank(message = "Event title is required")
