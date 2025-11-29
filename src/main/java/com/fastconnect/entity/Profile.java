@@ -4,12 +4,14 @@ import com.fastconnect.enums.Departments;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.validator.constraints.URL;
 
 
 @Getter
 @Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "profile")
 public class Profile {

@@ -3,6 +3,7 @@ package com.fastconnect.entity;
 import com.fastconnect.enums.ConversationType;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -12,6 +13,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
 @Table(name = "conversations")
 public class Conversation {
 

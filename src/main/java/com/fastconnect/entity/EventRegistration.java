@@ -3,12 +3,14 @@ package com.fastconnect.entity;
 import com.fastconnect.enums.EventRegistrationStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "event_registrations",
         uniqueConstraints = {
