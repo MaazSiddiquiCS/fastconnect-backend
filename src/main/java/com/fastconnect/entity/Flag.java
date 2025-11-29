@@ -38,33 +38,34 @@ public class Flag {
             sequenceName = "flag_sequence",
             allocationSize = 50
     )
-    private Long flag_id;
+    @Column(name = "flag_id") 
+    private Long flagId;
 
     @NotNull(message = "Required target type")
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false,length = 50)
-    private EntityType target_type;
+    @Column(name = "target_type", nullable = false,length = 50) 
+    private EntityType targetType;
 
     @NotNull(message = "Required The ID of the specific entity flagged.")
-    @Column(nullable = false)
-    private Long target_id;
+    @Column(name = "target_id", nullable = false) 
+    private Long targetId;
 
     @NotNull(message = "Required reason for flag")
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false,length = 50)
-    private FlagReason flag_reason;
+    @Column(name = "flag_reason", nullable = false,length = 50) 
+    private FlagReason flagReason;
 
     @NotNull(message = "Required status")
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false,length = 50)
-    private FlagStatus flag_status;
+    @Column(name = "flag_status", nullable = false,length = 50) 
+    private FlagStatus flagStatus;
 
     @NotNull
-    @Column(nullable = false,updatable = false)
-    private LocalDateTime created_at;
+    @Column(name = "created_at", nullable = false,updatable = false) 
+    private LocalDateTime createdAt;
 
-    @Column
-    private LocalDateTime resolved_at;
+    @Column(name = "resolved_at") 
+    private LocalDateTime resolvedAt;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -72,12 +73,12 @@ public class Flag {
     private User flaggedBy;
 
     @OneToMany(mappedBy = "flag", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE,orphanRemoval = true)
-    private Set<FlagReportLink> flag_report_links;
+    private Set<FlagReportLink> flagReportLinks;
 
     @PrePersist
     public void prePersist() {
-        if(this.created_at==null) {
-            this.created_at = LocalDateTime.now();
+        if(this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
         }
     }
 }

@@ -26,14 +26,15 @@ public class ReelComment {
             sequenceName = "reel_comment_sequence",
             allocationSize = 50
     )
-    private Long reel_comment_id;
+    @Column(name = "reel_comment_id")
+    private Long reelCommentId;
 
     @NotBlank(message = "Comment cannot be empty")
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime created_at;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reel_id", nullable = false)
@@ -45,6 +46,6 @@ public class ReelComment {
 
     @PrePersist
     protected void onCreate() {
-        created_at = LocalDateTime.now();
+        createdAt = LocalDateTime.now();
     }
 }

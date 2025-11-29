@@ -25,7 +25,8 @@ public class Event {
             sequenceName = "event_sequence",
             allocationSize = 50
     )
-    private Long event_id;
+    @Column(name = "event_id") 
+    private Long eventId;
 
     @NotBlank(message = "Event title is required")
     @Column(nullable = false, length = 150)
@@ -37,7 +38,7 @@ public class Event {
 
     @URL
     @Column(name = "poster_url")
-    private String poster_url;
+    private String posterUrl;
 
     @NotBlank(message = "Venue is required")
     @Column(nullable = false, length = 100)
@@ -52,11 +53,11 @@ public class Event {
     @Column(name = "end_time", nullable = false)
     private LocalDateTime endTime;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime created_at;
+    @Column(name = "created_at", nullable = false, updatable = false) 
+    private LocalDateTime createdAt;
 
-    @Column(nullable = false)
-    private LocalDateTime updated_at;
+    @Column(name = "updated_at", nullable = false) 
+    private LocalDateTime updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", nullable = false)
@@ -71,12 +72,13 @@ public class Event {
 
     @PrePersist
     protected void onCreate() {
-        created_at = LocalDateTime.now();
-        updated_at = LocalDateTime.now();
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
     protected void onUpdate() {
-        updated_at = LocalDateTime.now();
+
+        updatedAt = LocalDateTime.now();
     }
 }

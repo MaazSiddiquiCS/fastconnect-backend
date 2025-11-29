@@ -22,14 +22,15 @@ public class Conversation {
             sequenceName = "conversation_sequence",
             allocationSize = 50
     )
-    private Long conversation_id;
+    @Column(name = "conversation_id") 
+    private Long conversationId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ConversationType type;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime created_at;
+    @Column(name = "created_at", nullable = false, updatable = false) 
+    private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Message> messages = new HashSet<>();
@@ -44,7 +45,7 @@ public class Conversation {
 
     @PrePersist
     protected void onCreate() {
-        created_at = LocalDateTime.now();
+        createdAt = LocalDateTime.now();
         if (type == null) {
             type = ConversationType.ONE_TO_ONE;
         }

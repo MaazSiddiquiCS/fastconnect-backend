@@ -23,36 +23,37 @@ public class FacultyPage {
             sequenceName = "faculty_page_sequence",
             allocationSize = 50
     )
-    private Long faculty_id;
+    @Column(name = "faculty_id") 
+    private Long facultyId;
 
     @NotNull(message = "Name is requires")
-    @Column(length = 100, nullable = false)
-    private String full_name;
+    @Column(name = "full_name", length = 100, nullable = false) 
+    private String fullName;
 
     @URL
-    @Column(columnDefinition = "TEXT")
-    private String faculty_profile_pic;
+    @Column(name = "faculty_profile_pic", columnDefinition = "TEXT") 
+    private String facultyProfilePic;
 
     @URL
-    @Column(columnDefinition = "TEXT")
-    private String faculty_cover_pic;
+    @Column(name = "faculty_cover_pic", columnDefinition = "TEXT") 
+    private String facultyCoverPic;
 
     @Size(max = 500)
-    @Column(columnDefinition = "TEXT", length = 500)
-    private String faculty_bio;
+    @Column(name = "faculty_bio", columnDefinition = "TEXT", length = 500) 
+    private String facultyBio;
 
 
     @NotNull(message = "Designation is required")
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private FacultyDesignation faculty_designation;
+    @Column(name = "faculty_designation", nullable = false) 
+    private FacultyDesignation facultyDesignation;
 
     @Enumerated(EnumType.STRING)
     @Column
     private Departments department;
 
-    @Column(nullable = false)
-    private Boolean is_verified;
+    @Column(name = "is_verified", nullable = false) 
+    private Boolean isVerified;
 
     @OneToOne
     @JoinColumn(name="user_id", nullable = false,unique = true)
@@ -60,8 +61,8 @@ public class FacultyPage {
 
     @PrePersist
     public void prePersist() {
-        if(this.is_verified == null) {
-            this.is_verified = false;
+        if(this.isVerified == null) {
+            this.isVerified = false;
         }
     }
 }

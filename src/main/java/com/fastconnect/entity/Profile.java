@@ -20,21 +20,22 @@ public class Profile {
             sequenceName = "profile_sequence",
             allocationSize = 50
     )
-    private Long profile_id;
+    @Column(name = "profile_id") 
+    private Long profileId;
 
     @NotBlank(message = "Name is required")
-    @Column(length = 50, nullable = false)
-    private String full_name;
+    @Column(name = "full_name", length = 50, nullable = false) 
+    private String fullName;
 
     @Size(min=8,max=8)
     @NotBlank(message = "Roll number is required")
-    @Column(unique = true, nullable = false,length = 8)
-    private String roll_number;
+    @Column(name = "roll_number", unique = true, nullable = false,length = 8) 
+    private String rollNumber;
 
     @NotNull(message = "Required Department")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Departments department=Departments.CS;
+    private Departments department = Departments.CS;
 
     @Min(2018)
     @Max(2026)
@@ -46,12 +47,12 @@ public class Profile {
     private String bio;
 
     @URL
-    @Column(columnDefinition = "TEXT",nullable = true)
-    private String profile_pic;
+    @Column(name = "profile_pic", columnDefinition = "TEXT",nullable = true) 
+    private String profilePic;
 
     @URL
-    @Column(columnDefinition = "TEXT")
-    private String cover_pic;
+    @Column(name = "cover_pic", columnDefinition = "TEXT") 
+    private String coverPic;
 
     @OneToOne
     @JoinColumn(name = "user_id",unique = true,nullable = false)

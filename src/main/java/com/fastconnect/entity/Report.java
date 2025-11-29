@@ -23,42 +23,43 @@ public class Report {
             sequenceName = "report_sequence",
             allocationSize = 50
     )
-    private Long report_id;
+    @Column(name = "report_id") 
+    private Long reportId;
 
     @NotNull(message = "Required content type")
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false,length = 50)
-    private EntityType reported_item_type;
+    @Column(name = "reported_item_type", nullable = false,length = 50) 
+    private EntityType reportedItemType;
 
     @NotNull(message = "Required The ID of the specific entity reported")
-    @Column(nullable = false)
-    private Long reported_item_id;
+    @Column(name = "reported_item_id", nullable = false) 
+    private Long reportedItemId;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 50)
-    private ModerationAction moderation_action;
+    @Column(name = "moderation_action", length = 50) 
+    private ModerationAction moderationAction;
 
     @Size(min = 20, max = 500)
-    @Column(columnDefinition = "TEXT",length = 500)
-    private String action_details;
+    @Column(name = "action_details", columnDefinition = "TEXT",length = 500) 
+    private String actionDetails;
 
     @NotNull
-    @Column(nullable = false,updatable = false)
-    private LocalDateTime moderation_time;
+    @Column(name = "moderation_time", nullable = false,updatable = false) 
+    private LocalDateTime moderationTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "moderator_id", nullable = false)
+    @JoinColumn(name = "moderator_id", nullable = false) 
     private User moderator;
 
     @OneToMany(mappedBy = "report", fetch = FetchType.LAZY,
             cascade = CascadeType.REMOVE,orphanRemoval = true
     )
-    private Set<FlagReportLink> flag_report_links;
+    private Set<FlagReportLink> flagReportLinks;
 
     @PrePersist
     public void prePersist() {
-        if (this.moderation_time == null) {
-            this.moderation_time = LocalDateTime.now();
+        if (this.moderationTime == null) {
+            this.moderationTime = LocalDateTime.now();
         }
     }
 }

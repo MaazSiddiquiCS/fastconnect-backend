@@ -27,25 +27,26 @@ public class AuditLog {
             sequenceName = "logs_sequence",
             allocationSize = 50
     )
-    private Long log_id;
+    @Column(name = "log_id")
+    private Long logId;
 
     @NotNull(message = "Required action type")
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false,length = 50)
-    private ActionType action_type;
+    @Column(name = "action_type", nullable = false,length = 50)
+    private ActionType actionType;
 
     @NotNull(message = "Required entity type")
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false,length = 50)
-    private EntityType entity_type;
+    @Column(name = "entity_type", nullable = false,length = 50)
+    private EntityType entityType;
 
     @NotNull(message = "Required The ID of the specific entity affected.")
-    @Column(nullable = false)
-    private Long entity_id;
+    @Column(name = "entity_id", nullable = false)
+    private Long entityId;
 
     @NotNull
-    @Column(nullable = false,updatable = false)
-    private LocalDateTime action_performed_at;
+    @Column(name = "action_performed_at", nullable = false,updatable = false)
+    private LocalDateTime actionPerformedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "action_user_id")
@@ -53,8 +54,8 @@ public class AuditLog {
 
     @PrePersist
     public void prePersist() {
-        if (action_performed_at == null) {
-            action_performed_at = LocalDateTime.now();
+        if (actionPerformedAt == null) {
+            actionPerformedAt = LocalDateTime.now();
         }
     }
 }

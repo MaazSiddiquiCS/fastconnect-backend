@@ -29,16 +29,17 @@ public class SocietyMembership {
             sequenceName = "society_membership_sequence",
             allocationSize = 50
     )
-    private Long membership_id;
+    @Column(name = "membership_id") 
+    private Long membershipId;
 
     @NotNull(message = "Role is mandatory")
-    @Column(length = 30,nullable = false)
+    @Column(name = "society_role", length = 30,nullable = false) 
     @Enumerated(EnumType.STRING)
-    private SocietyRoles  society_role;
+    private SocietyRoles societyRole;
 
     @NotNull
-    @Column(nullable = false)
-    private LocalDateTime joined_at;
+    @Column(name = "joined_at", nullable = false) 
+    private LocalDateTime joinedAt;
 
     @NotNull
     @Column(nullable = false)
@@ -54,7 +55,7 @@ public class SocietyMembership {
 
     @PrePersist
     public void prePersist() {
-        if (this.joined_at == null) this.joined_at = LocalDateTime.now();
+        if (this.joinedAt == null) this.joinedAt = LocalDateTime.now();
         if (this.active == null) this.active = true;
     }
 }

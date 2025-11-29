@@ -28,7 +28,8 @@ public class ConnectionRequest {
             sequenceName = "connection_req_sequence",
             allocationSize = 50
     )
-    private Long connection_request_id;
+    @Column(name = "connection_request_id") 
+    private Long connectionRequestId;
 
     @NotNull(message = "Status is required")
     @Enumerated(EnumType.STRING)
@@ -36,11 +37,11 @@ public class ConnectionRequest {
     private ConnectionRequestStatus status;
 
     @NotNull
-    @Column(nullable = false)
-    private LocalDateTime created_at;
+    @Column(name = "created_at", nullable = false) 
+    private LocalDateTime createdAt;
 
-    @Column
-    private LocalDateTime responded_at;
+    @Column(name = "responded_at") 
+    private LocalDateTime respondedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id", nullable = false)
@@ -52,8 +53,8 @@ public class ConnectionRequest {
 
     @PrePersist
     public void prePersist() {
-        if (this.created_at == null) {
-            this.created_at = LocalDateTime.now();
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
         }
     }
 }

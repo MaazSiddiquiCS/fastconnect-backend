@@ -24,20 +24,21 @@ public class Society {
             sequenceName = "society_sequence",
             allocationSize = 50
     )
-    private Long society_id;
+    @Column(name = "society_id") 
+    private Long societyId;
 
     @NotBlank(message = "Society name is required")
     @Size(min = 10, max = 100)
-    @Column(nullable = false,unique = true,length = 100)
-    private String society_name;
+    @Column(name = "society_name", nullable = false,unique = true,length = 100) 
+    private String societyName;
 
     @URL
     @Column(columnDefinition = "TEXT")
     private String logo;
 
     @URL
-    @Column(columnDefinition = "TEXT")
-    private String cover_pic;
+    @Column(name = "cover_pic", columnDefinition = "TEXT") 
+    private String coverPic;
 
     @Size(max = 500)
     @Column(columnDefinition = "TEXT", length = 500)

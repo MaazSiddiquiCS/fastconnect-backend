@@ -26,7 +26,8 @@ public class User {
             sequenceName = "user_sequence",
             allocationSize = 50
     )
-    private Long user_id;
+    @Column(name = "user_id") 
+    private Long userId;
 
     @Email
     @NotBlank(message = "Email is required")
@@ -39,13 +40,13 @@ public class User {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "account_status", nullable = false)
-    private AccountStatus account_status=AccountStatus.ACTIVE;
+    @Column(name = "account_status", nullable = false) 
+    private AccountStatus accountStatus = AccountStatus.ACTIVE;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "role_type", nullable = false)
-    private RoleType role_type=RoleType.STUDENT;
+    @Column(name = "role_type", nullable = false) 
+    private RoleType roleType = RoleType.STUDENT;
 
     @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
     private Profile profile;

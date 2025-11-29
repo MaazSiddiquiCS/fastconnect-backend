@@ -24,11 +24,12 @@ public class SocietyFollowers {
             sequenceName = "society_followers_sequence",
             allocationSize = 50
     )
-    private Long society_follower_id;
+    @Column(name = "society_follower_id") 
+    private Long societyFollowerId;
 
     @NotNull
-    @Column(nullable = false)
-    private LocalDateTime followed_at;
+    @Column(name = "followed_at", nullable = false) 
+    private LocalDateTime followedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "society_id", nullable = false)
@@ -40,8 +41,8 @@ public class SocietyFollowers {
 
     @PrePersist
     public void prePersist() {
-        if (this.followed_at == null) {
-            this.followed_at = LocalDateTime.now();
+        if (this.followedAt == null) {
+            this.followedAt = LocalDateTime.now();
         }
     }
 }

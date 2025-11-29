@@ -29,23 +29,24 @@ public class AuthToken {
             sequenceName = "auth_token_sequence",
             allocationSize = 50
     )
-    private Long token_id;
+    @Column(name = "token_id") 
+    private Long tokenId;
 
     @NotNull
     @Size(min = 20)
-    @Column(unique = true, nullable = false)
-    private String refresh_token;
+    @Column(name = "refresh_token", unique = true, nullable = false) 
+    private String refreshToken;
 
     @NotNull
-    @Column(nullable = false)
-    private LocalDateTime issued_at;
+    @Column(name = "issued_at", nullable = false) 
+    private LocalDateTime issuedAt;
 
     @NotNull
-    @Column(nullable = false)
-    private LocalDateTime expires_at;
+    @Column(name = "expires_at", nullable = false) 
+    private LocalDateTime expiresAt;
 
     @NotNull
-    @Column(nullable = false)
+    @Column(name = "revoked", nullable = false) 
     private Boolean revoked;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -54,8 +55,8 @@ public class AuthToken {
 
     @PrePersist
     public void prePersist() {
-        if(this.issued_at == null) {
-            this.issued_at =  LocalDateTime.now();
+        if(this.issuedAt == null) {
+            this.issuedAt =  LocalDateTime.now();
         }
         if(this.revoked == null) {
             this.revoked = false;

@@ -25,14 +25,15 @@ public class ReelReaction {
             sequenceName = "reel_reaction_sequence",
             allocationSize = 50
     )
-    private Long reel_reaction_id;
+    @Column(name = "reel_reaction_id")
+    private Long reelReactionId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "reaction_type", nullable = false)
     private ReactionType reactionType;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime created_at;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reel_id", nullable = false)
@@ -44,6 +45,6 @@ public class ReelReaction {
 
     @PrePersist
     protected void onCreate() {
-        created_at = LocalDateTime.now();
+        createdAt = LocalDateTime.now();
     }
 }

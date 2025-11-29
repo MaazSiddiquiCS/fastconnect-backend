@@ -31,11 +31,12 @@ public class Connection {
             sequenceName = "connection_sequence",
             allocationSize = 50
     )
-    private Long connection_id;
+    @Column(name = "connection_id") 
+    private Long connectionId;
 
     @NotNull
-    @Column(nullable = false)
-    private LocalDateTime connected_at;
+    @Column(name = "connected_at", nullable = false) 
+    private LocalDateTime connectedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user1_id", nullable = false)
@@ -47,8 +48,8 @@ public class Connection {
 
     @PrePersist
     public void prePersist() {
-        if (this.connected_at == null) {
-            this.connected_at = LocalDateTime.now();
+        if (this.connectedAt == null) {
+            this.connectedAt = LocalDateTime.now();
         }
     }
 }

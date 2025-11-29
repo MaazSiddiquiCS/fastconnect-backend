@@ -26,16 +26,17 @@ public class Message {
             sequenceName = "message_sequence",
             allocationSize = 50
     )
-    private Long message_id;
+    @Column(name = "message_id") 
+    private Long messageId;
 
     @NotBlank(message = "Message content cannot be empty")
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime sent_at;
+    @Column(name = "sent_at", nullable = false, updatable = false) 
+    private LocalDateTime sentAt;
 
-    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
+    @Column(name = "seen", nullable = false, columnDefinition = "BOOLEAN DEFAULT false") 
     private boolean seen = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -48,6 +49,7 @@ public class Message {
 
     @PrePersist
     protected void onCreate() {
-        sent_at = LocalDateTime.now();
+
+        sentAt = LocalDateTime.now();
     }
 }

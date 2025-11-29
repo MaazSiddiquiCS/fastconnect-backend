@@ -23,15 +23,16 @@ public class Notification {
             sequenceName = "notification_sequence",
             allocationSize = 50
     )
-    private Long notification_id;
+    @Column(name = "notification_id") 
+    private Long notificationId;
 
     @NotNull(message = "Required entity type whose notification is created")
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false,length = 50)
-    private EntityType notification_type;
+    @Column(name = "notification_type", nullable = false,length = 50) 
+    private EntityType notificationType;
 
-    @Column(nullable = false)
-    private Long reference_id;
+    @Column(name = "reference_id", nullable = false) 
+    private Long referenceId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -40,7 +41,7 @@ public class Notification {
     @Column(nullable = false)
     private String message;
 
-    @Column(name = "is_read", nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
+    @Column(name = "is_read", nullable = false, columnDefinition = "BOOLEAN DEFAULT false") 
     private boolean isRead;
 
     @CreationTimestamp

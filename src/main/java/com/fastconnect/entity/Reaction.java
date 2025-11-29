@@ -28,14 +28,15 @@ public class Reaction {
             sequenceName = "reaction_sequence",
             allocationSize = 50
     )
-    private Long reaction_id;
+    @Column(name = "reaction_id")
+    private Long reactionId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "reaction_type", nullable = false)
     private ReactionType reactionType;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime created_at;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -47,6 +48,6 @@ public class Reaction {
 
     @PrePersist
     protected void onCreate() {
-        created_at = LocalDateTime.now();
+        createdAt = LocalDateTime.now();
     }
 }

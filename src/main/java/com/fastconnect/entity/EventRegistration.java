@@ -27,14 +27,15 @@ public class EventRegistration {
             sequenceName = "event_reg_sequence",
             allocationSize = 50
     )
-    private Long registration_id;
+    @Column(name = "registration_id") 
+    private Long registrationId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EventRegistrationStatus status;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime registered_at;
+    @Column(name = "registered_at", nullable = false, updatable = false) 
+    private LocalDateTime registeredAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id", nullable = false)
@@ -46,6 +47,7 @@ public class EventRegistration {
 
     @PrePersist
     protected void onCreate() {
-        registered_at = LocalDateTime.now();
+        // Updated field name
+        registeredAt = LocalDateTime.now();
     }
 }

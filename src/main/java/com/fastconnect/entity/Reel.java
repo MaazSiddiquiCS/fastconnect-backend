@@ -28,7 +28,8 @@ public class Reel {
             sequenceName = "reel_sequence",
             allocationSize = 50
     )
-    private Long reel_id;
+    @Column(name = "reel_id")
+    private Long reelId;
 
     @NotBlank(message = "Video URL is required")
     @URL
@@ -38,7 +39,6 @@ public class Reel {
     @Column(columnDefinition = "TEXT")
     private String caption;
 
-    // Duration in seconds (e.g., 60.50)
     @Column(nullable = false)
     private Double duration;
 
@@ -51,8 +51,8 @@ public class Reel {
     @Column(name = "is_public", nullable = false, columnDefinition = "BOOLEAN DEFAULT true")
     private boolean isPublic = true;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime created_at;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -66,7 +66,7 @@ public class Reel {
 
     @PrePersist
     protected void onCreate() {
-        created_at = LocalDateTime.now();
+        createdAt = LocalDateTime.now();
         if (views == null) views = 0;
         if (likesCount == null) likesCount = 0;
     }

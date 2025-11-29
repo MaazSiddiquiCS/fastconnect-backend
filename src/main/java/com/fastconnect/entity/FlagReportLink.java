@@ -20,7 +20,9 @@ public class FlagReportLink {
             sequenceName = "flag_report_link_sequence",
             allocationSize = 50
     )
-    private Long link_id;
+    @Column(name = "link_id") 
+    private Long linkId;
+
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
@@ -28,6 +30,7 @@ public class FlagReportLink {
             nullable = false
     )
     private Flag flag;
+
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "report_id", nullable = false)

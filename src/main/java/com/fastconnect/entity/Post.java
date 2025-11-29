@@ -29,24 +29,25 @@ public class Post {
             sequenceName = "post_sequence",
             allocationSize = 50
     )
-    private Long post_id;
+    @Column(name = "post_id") 
+    private Long postId;
 
     @NotBlank(message = "Post content cannot be blank")
     @Column(columnDefinition = "TEXT")
     private String content;
 
     @URL
-    @Column(name = "media_url", nullable = true)
-    private String media_url;
+    @Column(name = "media_url", nullable = true) 
+    private String mediaUrl; 
 
-    @Column(name = "is_pinned", nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
-    private boolean is_pinned;
+    @Column(name = "is_pinned", nullable = false, columnDefinition = "BOOLEAN DEFAULT false") 
+    private boolean isPinned; 
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime created_at;
+    @Column(name = "created_at", nullable = false, updatable = false) 
+    private LocalDateTime createdAt;
 
-    @Column(nullable = false)
-    private LocalDateTime updated_at;
+    @Column(name = "updated_at", nullable = false) 
+    private LocalDateTime updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -68,12 +69,14 @@ public class Post {
 
     @PrePersist
     protected void onCreate() {
-        created_at = LocalDateTime.now();
-        updated_at = LocalDateTime.now();
+        
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
     protected void onUpdate() {
-        updated_at = LocalDateTime.now();
+        
+        updatedAt = LocalDateTime.now();
     }
 }

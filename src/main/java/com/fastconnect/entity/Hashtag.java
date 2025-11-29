@@ -21,7 +21,8 @@ public class Hashtag {
             sequenceName = "hashtag_sequence",
             allocationSize = 50
     )
-    private Long hashtag_id;
+    @Column(name = "hashtag_id") 
+    private Long hashtagId;
 
     @NotBlank(message = "Tag name is required")
     @Column(unique = true, nullable = false, length = 100)
@@ -30,6 +31,6 @@ public class Hashtag {
     @ManyToMany(
             mappedBy = "hashtags",
             fetch = FetchType.LAZY
-                    )
+    )
     private Set<Post> posts = new HashSet<>();
 }

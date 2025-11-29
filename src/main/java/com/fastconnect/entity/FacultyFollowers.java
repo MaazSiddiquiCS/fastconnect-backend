@@ -30,7 +30,8 @@ public class FacultyFollowers {
             sequenceName = "faculty_followers_sequence",
             allocationSize = 50
     )
-    private Long faculty_follower_id;
+    @Column(name = "faculty_follower_id") 
+    private Long facultyFollowerId;
 
     @NotNull
     @Column(nullable = false)
