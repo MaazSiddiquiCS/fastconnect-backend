@@ -1,22 +1,20 @@
 package com.fastconnect.service.Impl;
 
-import com.fastconnect.dto.ProfileRequest;
-import com.fastconnect.dto.ProfileResponse;
-import com.fastconnect.dto.UserResponse;
+import com.fastconnect.dto.*;
 import com.fastconnect.entity.Profile;
 import com.fastconnect.entity.User;
 import com.fastconnect.enums.AccountStatus;
 import com.fastconnect.enums.Departments;
 import com.fastconnect.enums.RoleType;
-import com.fastconnect.exception.ProfileAlreadyExistException;
-import com.fastconnect.exception.ProfileNotFoundException;
-import com.fastconnect.exception.UserNotFoundException;
+import com.fastconnect.exception.*;
 import com.fastconnect.mapper.ProfileMapper;
 import com.fastconnect.mapper.UserMapper;
 import com.fastconnect.repository.ProfileRepository;
 import com.fastconnect.repository.UserRepository;
 import com.fastconnect.service.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
@@ -36,6 +34,12 @@ public class UserServiceImpl implements UserService {
     private final ProfileRepository profileRepository;
 
     private final ProfileMapper profileMapper;
+
+    @Override
+    public User saveUserEntity(User user) {
+        // You could put any pre-save logic here (e.g., auditing)
+        return userRepository.save(user);
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -58,6 +62,12 @@ public class UserServiceImpl implements UserService {
     public Optional<UserResponse> getUserByEmail(String email) {
         Optional<User> users= userRepository.findByEmail(email);
         return users.map(userMapper::toDTO);
+    }
+
+    @Transactional(readOnly = true)
+    protected User getUserEntityByEmail(String email) {
+        return  userRepository.findByEmail(email)
+                .orElseThrow(()->new UserEmailNotFoundException(email));
     }
 
     @Override
@@ -181,7 +191,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(()-> new UserNotFoundException(userId));
         if(profileRepository.existsByUser_UserId(userId))
         {
-            throw new ProfileAlreadyExistException(userId);
+            throw new ProfileAlreadyExistsException(userId);
         }
         Profile profile = profileMapper.toEntity(profileRequest);
         profile.setUser(user);

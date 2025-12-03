@@ -24,8 +24,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    //TODO login and user
-
     @GetMapping
     public ResponseEntity<Page<UserResponse>> findAll(Pageable pageable) {
         Page<UserResponse> userResponse=userService.getAllUsers(pageable);

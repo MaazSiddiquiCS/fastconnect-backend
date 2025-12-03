@@ -1,8 +1,7 @@
 package com.fastconnect.service;
 
-import com.fastconnect.dto.ProfileRequest;
-import com.fastconnect.dto.ProfileResponse;
-import com.fastconnect.dto.UserResponse;
+import com.fastconnect.dto.*;
+import com.fastconnect.entity.User;
 import com.fastconnect.enums.AccountStatus;
 import com.fastconnect.enums.Departments;
 import com.fastconnect.enums.RoleType;
@@ -14,6 +13,7 @@ import java.util.Optional;
 public interface UserService {
 
     //CRUD-forUser
+    public User saveUserEntity(User user);
     Page<UserResponse> getAllUsers(Pageable pageable);
     Page<UserResponse> getUsersByAccountStatus(AccountStatus accountStatus, Pageable pageable);
     Optional<UserResponse> getUserByEmail(String email);
