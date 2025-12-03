@@ -37,7 +37,7 @@ public class Profile {
     @NotNull(message = "Required Department")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Departments department = Departments.CS;
+    private Departments department;
 
     @Min(2018)
     @Max(2026)

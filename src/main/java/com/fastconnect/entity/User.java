@@ -48,7 +48,7 @@ public class User {
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "role_type", nullable = false) 
-    private RoleType roleType = RoleType.STUDENT;
+    private RoleType roleType;
 
     @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
     private Profile profile;

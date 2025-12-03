@@ -10,13 +10,13 @@ public class DepartmentValidator implements ConstraintValidator<DepartmentRequir
     public boolean isValid(FacultyPage facultyPage, ConstraintValidatorContext context) {
 
         // 1. Get the designation object from the entity
-        if (facultyPage == null || facultyPage.getFaculty_designation() == null) {
+        if (facultyPage == null || facultyPage.getFacultyDesignation() == null) {
             // Let @NotNull handle this error separately, or simply pass validation if object is null.
             return true;
         }
 
         // 2. Check the business rule using the enum's built-in logic
-        if (facultyPage.getFaculty_designation().requiresDepartment()) {
+        if (facultyPage.getFacultyDesignation().requiresDepartment()) {
 
             // If the role requires a department, check if the department field is null.
             if (facultyPage.getDepartment() == null) {
