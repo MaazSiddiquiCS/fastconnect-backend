@@ -49,7 +49,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    [cite_start]@Transactional(readOnly = true) // [cite: 525-526]
+    @Transactional(readOnly = true) // [cite: 525-526]
     public Page<PostResponse> getAllPosts(Pageable pageable) {
         return postRepository.findAll(pageable)
                 .map(postMapper::toDTO);

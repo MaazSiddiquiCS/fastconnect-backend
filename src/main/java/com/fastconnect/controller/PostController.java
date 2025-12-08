@@ -4,6 +4,7 @@ import com.fastconnect.dto.CommentRequest;
 import com.fastconnect.dto.PostRequest;
 import com.fastconnect.dto.PostResponse;
 import com.fastconnect.enums.ReactionType;
+import com.fastconnect.service.PostService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
