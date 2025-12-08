@@ -150,4 +150,15 @@ public class PostServiceImpl implements PostService {
                 .map(reaction -> reaction.getUser().getProfile().getFullName())
                 .collect(java.util.stream.Collectors.toList());
     }
+
+    @Override
+    public void updateComment(Long commentId, Long userId, CommentRequest commentRequest) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new EntityNotFoundException("Comment not found"));
+        if (!comment.getUser().getUserId().equals(userId)) {
+            throw new RuntimeException("You are not authorized to update this comment");
+        }
+        comment.setContent(commentRequest.getContent());
+        commentRepository.save(comment);
+    }
 }

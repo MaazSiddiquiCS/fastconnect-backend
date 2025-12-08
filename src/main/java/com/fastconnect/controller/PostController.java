@@ -87,4 +87,13 @@ public class PostController {
     public ResponseEntity<List<String>> getReactions(@PathVariable Long postId) {
         return ResponseEntity.ok(postService.getReactionsByPostId(postId));
     }
+
+    @PutMapping("/comments/{commentId}/{userId}")
+    public ResponseEntity<Void> updateComment(
+            @PathVariable Long commentId,
+            @PathVariable Long userId,
+            @Valid @RequestBody CommentRequest commentRequest) {
+        postService.updateComment(commentId, userId, commentRequest);
+        return ResponseEntity.ok().build();
+    }
 }

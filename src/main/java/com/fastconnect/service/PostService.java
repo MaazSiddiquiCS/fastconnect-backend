@@ -9,14 +9,21 @@ import org.springframework.data.domain.Pageable;
 
 public interface PostService {
     PostResponse createPost(PostRequest postRequest, Long userId);
+
     Page<PostResponse> getAllPosts(Pageable pageable);
+
     PostResponse getPostById(Long postId);
+
     void deletePost(Long postId);
 
     PostResponse addComment(Long postId, Long userId, CommentRequest commentRequest);
+
     void deleteComment(Long commentId);
 
+    void updateComment(Long commentId, Long userId, CommentRequest commentRequest);
+
     void toggleReaction(Long postId, Long userId, ReactionType type);
+
 
     PostResponse updatePost(Long postId, PostRequest postRequest);
     java.util.List<com.fastconnect.dto.CommentResponse> getCommentsByPostId(Long postId);
