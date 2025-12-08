@@ -116,4 +116,38 @@ public class PostServiceImpl implements PostService {
             reactionRepository.save(reaction);
         }
     }
+
+    @Override
+    public PostResponse updatePost(Long postId, PostRequest postRequest) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException(postId));
+
+        post.setContent(postRequest.getContent());
+        post.setMediaUrl(postRequest.getMediaUrl());
+
+        Post updatedPost = postRepository.save(post);
+        return postMapper.toDTO(updatedPost);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public java.util.List<com.fastconnect.dto.CommentResponse> getCommentsByPostId(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException(postId));
+
+        // Use the new repository method or just get from post object
+        return post.getComments().stream()
+                .map(postMapper::toCommentDTO)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public java.util.List<String> getReactionsByPostId(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException(postId));
+        return post.getReactions().stream()
+                .map(reaction -> reaction.getUser().getProfile().getFullName())
+                .collect(java.util.stream.Collectors.toList());
+    }
 }

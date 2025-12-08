@@ -72,4 +72,19 @@ public class PostController {
         postService.toggleReaction(postId, userId, type);
         return ResponseEntity.ok().build();
     }
+
+    @PutMapping("/{postId}")
+    public ResponseEntity<PostResponse> updatePost(@PathVariable Long postId, @Valid @RequestBody PostRequest postRequest) {
+        PostResponse updatedPost = postService.updatePost(postId, postRequest);
+        return ResponseEntity.ok(updatedPost);
+    }
+    @GetMapping("/{postId}/comments")
+    public ResponseEntity<List<com.fastconnect.dto.CommentResponse>> getComments(@PathVariable Long postId) {
+        return ResponseEntity.ok(postService.getCommentsByPostId(postId));
+    }
+
+    @GetMapping("/{postId}/reactions")
+    public ResponseEntity<List<String>> getReactions(@PathVariable Long postId) {
+        return ResponseEntity.ok(postService.getReactionsByPostId(postId));
+    }
 }

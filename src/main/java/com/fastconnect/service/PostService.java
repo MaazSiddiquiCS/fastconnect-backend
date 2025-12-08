@@ -17,4 +17,8 @@ public interface PostService {
     void deleteComment(Long commentId);
 
     void toggleReaction(Long postId, Long userId, ReactionType type);
+
+    PostResponse updatePost(Long postId, PostRequest postRequest);
+    java.util.List<com.fastconnect.dto.CommentResponse> getCommentsByPostId(Long postId);
+    java.util.List<String> getReactionsByPostId(Long postId); // Returns list of usernames who liked
 }
