@@ -148,4 +148,25 @@ public class GlobalExceptionHandler{
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(ConnectionRequestAlreadySent.class)
+    public ResponseEntity<ApiError> handleConnectionRequestAlreadySent(ConnectionRequestAlreadySent ex, HttpServletRequest request) {
+        ApiError error = new ApiError(HttpStatus.CONFLICT,
+                ex.getMessage(),
+                LocalDateTime.now(),
+                request.getRequestURI(),
+                "Connection Request already sent"
+        );
+        return new ResponseEntity<>(error, error.getStatus());
+    }
+
+    @ExceptionHandler(ConnectionRequestNotFoundException.class)
+    public ResponseEntity<ApiError> handleConnectionRequestNotFound(ConnectionRequestNotFoundException ex, HttpServletRequest request) {
+        ApiError error = new ApiError(HttpStatus.NOT_FOUND,
+                ex.getMessage(),
+                LocalDateTime.now(),
+                request.getRequestURI(),
+                "Connection Request already sent"
+        );
+        return new ResponseEntity<>(error, error.getStatus());
+    }
 }

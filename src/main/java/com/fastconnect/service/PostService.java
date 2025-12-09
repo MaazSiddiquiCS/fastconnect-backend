@@ -6,6 +6,7 @@ import com.fastconnect.dto.PostResponse;
 import com.fastconnect.enums.ReactionType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface PostService {
     PostResponse createPost(PostRequest postRequest, Long userId);
@@ -15,6 +16,9 @@ public interface PostService {
     PostResponse getPostById(Long postId);
 
     void deletePost(Long postId);
+
+    @Transactional(readOnly = true)
+    Page<PostResponse> getFeedPosts(Long userId, Pageable pageable);
 
     PostResponse addComment(Long postId, Long userId, CommentRequest commentRequest);
 
