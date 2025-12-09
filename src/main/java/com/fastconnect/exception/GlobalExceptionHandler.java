@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler{
@@ -127,4 +129,23 @@ public class GlobalExceptionHandler{
         );
         return new ResponseEntity<>(error, error.getStatus());
     }
+    @ExceptionHandler(PostNotFoundException.class)
+    public ResponseEntity<ApiError> handlePostNotFound(PostNotFoundException ex, HttpServletRequest request) {
+        ApiError error = new ApiError(
+                HttpStatus.NOT_FOUND,
+                ex.getMessage(),
+                LocalDateTime.now(),
+                request.getRequestURI(),
+                "The requested post does not exist"
+        );
+        return new ResponseEntity<>(error, error.getStatus());
+    }
+    @ExceptionHandler(NotificationNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleNotificationNotFound(NotificationNotFoundException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "Not Found");
+        response.put("message", ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
 }
