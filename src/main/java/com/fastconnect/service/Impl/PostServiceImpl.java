@@ -1,12 +1,15 @@
 package com.fastconnect.service.Impl;
 
 import com.fastconnect.dto.CommentRequest;
+import com.fastconnect.dto.CommentResponse;
 import com.fastconnect.dto.PostRequest;
 import com.fastconnect.dto.PostResponse;
 import com.fastconnect.entity.Comment;
 import com.fastconnect.entity.Post;
 import com.fastconnect.entity.Reaction;
 import com.fastconnect.entity.User;
+import com.fastconnect.enums.EntityType;
+import com.fastconnect.enums.NotificationType;
 import com.fastconnect.enums.ReactionType;
 import com.fastconnect.exception.PostNotFoundException;
 import com.fastconnect.exception.UserNotFoundException;
@@ -15,19 +18,22 @@ import com.fastconnect.repository.CommentRepository;
 import com.fastconnect.repository.PostRepository;
 import com.fastconnect.repository.ReactionRepository;
 import com.fastconnect.repository.UserRepository;
+import com.fastconnect.service.NotificationService;
 import com.fastconnect.service.PostService;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
-@AllArgsConstructor
+@RequiredArgsConstructor // Uses final fields for injection
 public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
@@ -35,6 +41,8 @@ public class PostServiceImpl implements PostService {
     private final CommentRepository commentRepository;
     private final ReactionRepository reactionRepository;
     private final PostMapper postMapper;
+
+    private final NotificationService notificationService;
 
     @Override
     public PostResponse createPost(PostRequest postRequest, Long userId) {
@@ -49,7 +57,19 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    @Transactional(readOnly = true) // [cite: 525-526]
+    public PostResponse updatePost(Long postId, PostRequest postRequest) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException(postId));
+
+        post.setContent(postRequest.getContent());
+        post.setMediaUrl(postRequest.getMediaUrl());
+
+        Post updatedPost = postRepository.save(post);
+        return postMapper.toDTO(updatedPost);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Page<PostResponse> getAllPosts(Pageable pageable) {
         return postRepository.findAll(pageable)
                 .map(postMapper::toDTO);
@@ -72,6 +92,16 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Page<PostResponse> getFeedPosts(Long userId, Pageable pageable) {
+        // TODO: Once Connection Module is ready, filter this by friends only.
+        // For now, return Global Feed.
+        return postRepository.findAll(pageable)
+                .map(postMapper::toDTO);
+    }
+
+
+    @Override
     public PostResponse addComment(Long postId, Long userId, CommentRequest commentRequest) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId));
@@ -85,7 +115,42 @@ public class PostServiceImpl implements PostService {
         comment.setUser(user);
 
         commentRepository.save(comment);
+        if (!post.getUser().getUserId().equals(userId)) {
+            String message = user.getProfile().getFullName() + " commented on your post.";
+            notificationService.createNotification(
+                    post.getUser().getUserId(), // Recipient
+                    message,
+                    NotificationType.COMMENT,
+                    EntityType.POST,
+                    post.getPostId()
+            );
+        }
+
         return postMapper.toDTO(post);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CommentResponse> getCommentsByPostId(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException(postId));
+
+        return post.getComments().stream()
+                .map(postMapper::toCommentDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void updateComment(Long commentId, Long userId, CommentRequest commentRequest) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new EntityNotFoundException("Comment not found"));
+
+        if (!comment.getUser().getUserId().equals(userId)) {
+            throw new RuntimeException("You are not authorized to update this comment");
+        }
+
+        comment.setContent(commentRequest.getContent());
+        commentRepository.save(comment);
     }
 
     @Override
@@ -95,6 +160,7 @@ public class PostServiceImpl implements PostService {
         }
         commentRepository.deleteById(commentId);
     }
+
 
     @Override
     public void toggleReaction(Long postId, Long userId, ReactionType type) {
@@ -109,56 +175,35 @@ public class PostServiceImpl implements PostService {
         if (existingReaction.isPresent()) {
             reactionRepository.delete(existingReaction.get());
         } else {
+            // Like
             Reaction reaction = new Reaction();
             reaction.setPost(post);
             reaction.setUser(user);
             reaction.setReactionType(type);
             reactionRepository.save(reaction);
+
+            // ✅ TRIGGER NOTIFICATION (If liker is NOT the post owner)
+            if (!post.getUser().getUserId().equals(userId)) {
+                String message = user.getProfile().getFullName() + " reacted to your post.";
+                notificationService.createNotification(
+                        post.getUser().getUserId(), // Recipient
+                        message,
+                        NotificationType.REACTION,
+                        EntityType.POST,
+                        post.getPostId()
+                );
+            }
         }
     }
 
     @Override
-    public PostResponse updatePost(Long postId, PostRequest postRequest) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new PostNotFoundException(postId));
-
-        post.setContent(postRequest.getContent());
-        post.setMediaUrl(postRequest.getMediaUrl());
-
-        Post updatedPost = postRepository.save(post);
-        return postMapper.toDTO(updatedPost);
-    }
-
-    @Override
     @Transactional(readOnly = true)
-    public java.util.List<com.fastconnect.dto.CommentResponse> getCommentsByPostId(Long postId) {
+    public List<String> getReactionsByPostId(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId));
 
-        // Use the new repository method or just get from post object
-        return post.getComments().stream()
-                .map(postMapper::toCommentDTO)
-                .collect(java.util.stream.Collectors.toList());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public java.util.List<String> getReactionsByPostId(Long postId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new PostNotFoundException(postId));
         return post.getReactions().stream()
                 .map(reaction -> reaction.getUser().getProfile().getFullName())
-                .collect(java.util.stream.Collectors.toList());
-    }
-
-    @Override
-    public void updateComment(Long commentId, Long userId, CommentRequest commentRequest) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new EntityNotFoundException("Comment not found"));
-        if (!comment.getUser().getUserId().equals(userId)) {
-            throw new RuntimeException("You are not authorized to update this comment");
-        }
-        comment.setContent(commentRequest.getContent());
-        commentRepository.save(comment);
+                .collect(Collectors.toList());
     }
 }
