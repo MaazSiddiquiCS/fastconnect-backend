@@ -148,4 +148,12 @@ public class GlobalExceptionHandler{
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(FacultyPageNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleFacultyPageNotFound(FacultyPageNotFoundException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "Not Found");
+        response.put("message", ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
 }

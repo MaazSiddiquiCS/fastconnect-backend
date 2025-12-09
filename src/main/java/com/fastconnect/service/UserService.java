@@ -40,4 +40,8 @@ public interface UserService {
     boolean existsByUserId(Long id);
     boolean existsByFullName(String fullName);
     boolean existsByRollNumber(String rollNumber);
+
+    FacultyPageResponse createOrUpdateFacultyPage(Long userId, FacultyPageRequest request);
+    FacultyPageResponse getFacultyPage(Long userId);;
+
 }
