@@ -13,6 +13,7 @@ import com.fastconnect.enums.NotificationType;
 import com.fastconnect.enums.ReactionType;
 import com.fastconnect.exception.PostNotFoundException;
 import com.fastconnect.exception.UserNotFoundException;
+import com.fastconnect.mapper.CommentMapper;
 import com.fastconnect.mapper.PostMapper;
 import com.fastconnect.repository.CommentRepository;
 import com.fastconnect.repository.PostRepository;
@@ -41,6 +42,7 @@ public class PostServiceImpl implements PostService {
     private final CommentRepository commentRepository;
     private final ReactionRepository reactionRepository;
     private final PostMapper postMapper;
+    private final CommentMapper commentMapper;
 
     private final NotificationService notificationService;
 
@@ -91,8 +93,8 @@ public class PostServiceImpl implements PostService {
         postRepository.deleteById(postId);
     }
 
-    @Override
     @Transactional(readOnly = true)
+    @Override
     public Page<PostResponse> getFeedPosts(Long userId, Pageable pageable) {
         // TODO: Once Connection Module is ready, filter this by friends only.
         // For now, return Global Feed.
@@ -136,7 +138,7 @@ public class PostServiceImpl implements PostService {
                 .orElseThrow(() -> new PostNotFoundException(postId));
 
         return post.getComments().stream()
-                .map(postMapper::toCommentDTO)
+                .map(commentMapper::toDTO)
                 .collect(Collectors.toList());
     }
 

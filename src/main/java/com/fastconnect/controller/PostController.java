@@ -1,6 +1,7 @@
 package com.fastconnect.controller;
 
 import com.fastconnect.dto.CommentRequest;
+import com.fastconnect.dto.CommentResponse;
 import com.fastconnect.dto.PostRequest;
 import com.fastconnect.dto.PostResponse;
 import com.fastconnect.enums.ReactionType;
@@ -12,6 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -79,7 +82,7 @@ public class PostController {
         return ResponseEntity.ok(updatedPost);
     }
     @GetMapping("/{postId}/comments")
-    public ResponseEntity<List<com.fastconnect.dto.CommentResponse>> getComments(@PathVariable Long postId) {
+    public ResponseEntity<List<CommentResponse>> getComments(@PathVariable Long postId) {
         return ResponseEntity.ok(postService.getCommentsByPostId(postId));
     }
 

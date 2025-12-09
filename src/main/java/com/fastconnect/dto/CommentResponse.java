@@ -12,8 +12,10 @@ public class CommentResponse {
     private Long commentId;
     private String content;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     private Long userId;
+    private Long postId;
     private String fullName;
     private String profilePic;
 }
