@@ -1,20 +1,21 @@
 package com.fastconnect.service.Impl;
 
 import com.fastconnect.dto.*;
+import com.fastconnect.entity.FacultyPage;
 import com.fastconnect.entity.Profile;
 import com.fastconnect.entity.User;
 import com.fastconnect.enums.AccountStatus;
 import com.fastconnect.enums.Departments;
 import com.fastconnect.enums.RoleType;
 import com.fastconnect.exception.*;
+import com.fastconnect.mapper.FacultyPageMapper;
 import com.fastconnect.mapper.ProfileMapper;
 import com.fastconnect.mapper.UserMapper;
+import com.fastconnect.repository.FacultyPageRepository;
 import com.fastconnect.repository.ProfileRepository;
 import com.fastconnect.repository.UserRepository;
 import com.fastconnect.service.UserService;
 import lombok.AllArgsConstructor;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
@@ -28,16 +29,16 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-
     private final UserMapper userMapper;
-
     private final ProfileRepository profileRepository;
-
     private final ProfileMapper profileMapper;
+
+    // ✅ ADDED THESE MISSING FIELDS
+    private final FacultyPageRepository facultyPageRepository;
+    private final FacultyPageMapper facultyPageMapper;
 
     @Override
     public User saveUserEntity(User user) {
-        // You could put any pre-save logic here (e.g., auditing)
         return userRepository.save(user);
     }
 
@@ -52,7 +53,6 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public Page<UserResponse> getUsersByAccountStatus(AccountStatus accountStatus, Pageable pageable) {
-
         Page<User> users= userRepository.findByAccountStatus(accountStatus, pageable);
         return users.map(userMapper::toDTO);
     }
@@ -215,5 +215,33 @@ public class UserServiceImpl implements UserService {
         return profileMapper.toDTO(updatedProfile);
     }
 
+    // --- FACULTY METHODS ---
 
+    @Override
+    @Transactional
+    public FacultyPageResponse createOrUpdateFacultyPage(Long userId, FacultyPageRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        FacultyPage facultyPage = facultyPageRepository.findByUserUserId(userId)
+                .orElse(new FacultyPage());
+
+        if (facultyPage.getUser() == null) {
+            facultyPage.setUser(user);
+        }
+
+        facultyPageMapper.updateEntity(facultyPage, request);
+
+        FacultyPage savedPage = facultyPageRepository.save(facultyPage);
+        return facultyPageMapper.toDTO(savedPage);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public FacultyPageResponse getFacultyPage(Long userId) {
+        FacultyPage facultyPage = facultyPageRepository.findByUserUserId(userId)
+                .orElseThrow(() -> new com.fastconnect.exception.FacultyPageNotFoundException(userId));
+
+        return facultyPageMapper.toDTO(facultyPage);
+    }
 }

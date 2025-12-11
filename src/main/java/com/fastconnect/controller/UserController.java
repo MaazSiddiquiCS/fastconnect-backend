@@ -14,7 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
+import org.springframework.security.access.prepost.PreAuthorize;
+import com.fastconnect.dto.FacultyPageRequest;
+import com.fastconnect.dto.FacultyPageResponse;
 import java.util.List;
 
 @RestController
@@ -157,4 +159,18 @@ public class UserController {
     }
 
     //TODO soft delete user
+
+    @PostMapping("/{userId}/faculty-page")
+    @PreAuthorize("hasRole('FACULTY') or #userId == principal.id") // Security Check
+    public ResponseEntity<FacultyPageResponse> createFacultyPage(
+            @PathVariable Long userId,
+            @Valid @RequestBody FacultyPageRequest request) {
+        return ResponseEntity.ok(userService.createOrUpdateFacultyPage(userId, request));
+    }
+
+    // 2. Get Faculty Page (Public)
+    @GetMapping("/{userId}/faculty-page")
+    public ResponseEntity<FacultyPageResponse> getFacultyPage(@PathVariable Long userId) {
+        return ResponseEntity.ok(userService.getFacultyPage(userId));
+    }
 }
