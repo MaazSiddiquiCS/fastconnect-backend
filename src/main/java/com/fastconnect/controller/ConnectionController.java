@@ -5,6 +5,7 @@ import com.fastconnect.dto.ConnectionRequestDetails;
 import com.fastconnect.dto.ConnectionRequestSendDTO;
 import com.fastconnect.dto.ConnectionResponse;
 import com.fastconnect.enums.ConnectionRequestStatus;
+import com.fastconnect.security.CustomUserDetails;
 import com.fastconnect.service.ConnectionService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.AccessDeniedException;
@@ -26,9 +28,11 @@ public class ConnectionController {
     private ConnectionService connectionService;
 
     @PostMapping("/send-request")
-    public ResponseEntity<ConnectionRequestDetails> sendConnectionRequest(@Valid @RequestBody ConnectionRequestSendDTO connectionRequestSendDTO) {
+    public ResponseEntity<ConnectionRequestDetails> sendConnectionRequest(@Valid
+                                                                              @RequestBody ConnectionRequestSendDTO connectionRequestSendDTO,
+                                                                          @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         ConnectionRequestDetails details = connectionService.createConnectionRequest(
-                connectionRequestSendDTO.getSenderEmail(),
+                customUserDetails.getUsername(),
                 connectionRequestSendDTO.getReceiverEmail()
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(details);
@@ -37,39 +41,39 @@ public class ConnectionController {
     @DeleteMapping("/withdraw-request/{requestId}")
     public ResponseEntity<Void> withdrawConnectionRequest(
             @PathVariable Long requestId,
-            @RequestParam String senderEmail
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) throws AccessDeniedException {
-        connectionService.withdrawConnectionRequest(requestId, senderEmail);
+        connectionService.withdrawConnectionRequest(requestId, customUserDetails.getUsername());
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/respond-request/{receiverId}")
+    @PatchMapping("/respond-request")
     public ResponseEntity<ConnectionRequestDetails> respondToConnectionRequest(
-            @PathVariable Long receiverId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Valid @RequestBody ConnectionRequestActionDTO actionDTO
     ) throws AccessDeniedException {
         ConnectionRequestDetails details = connectionService.respondToConnectionRequest(
-                receiverId,
+                customUserDetails.getUserId(),
                 actionDTO
         );
         return ResponseEntity.ok(details);
     }
 
-    @GetMapping("/requests/received/{receiverId}")
+    @GetMapping("/requests/received")
     public ResponseEntity<Page<ConnectionRequestDetails>> getPendingReceivedRequests(
-            @PathVariable Long receiverId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
             Pageable pageable
     ) {
-        Page<ConnectionRequestDetails> page = connectionService.getPendingReceivedRequests(receiverId, pageable);
+        Page<ConnectionRequestDetails> page = connectionService.getPendingReceivedRequests(customUserDetails.getUserId(), pageable);
         return ResponseEntity.ok(page);
     }
 
-    @GetMapping("/requests/sent/{senderId}")
+    @GetMapping("/requests/sent")
     public ResponseEntity<Page<ConnectionRequestDetails>> getSentRequests(
-            @PathVariable Long senderId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
             Pageable pageable
     ) {
-        Page<ConnectionRequestDetails> page = connectionService.getSentRequests(senderId, pageable);
+        Page<ConnectionRequestDetails> page = connectionService.getSentRequests(customUserDetails.getUserId(), pageable);
         return ResponseEntity.ok(page);
     }
 
@@ -82,24 +86,23 @@ public class ConnectionController {
         return details.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/established/{userId}")
+    @GetMapping("/established")
     public ResponseEntity<Page<ConnectionResponse>> getEstablishedConnections(
-            @PathVariable("userId") Long authenticatedUserId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
             Pageable pageable
     ) {
-        Page<ConnectionResponse> page = connectionService.getEstablishedConnections(authenticatedUserId, pageable);
+        Page<ConnectionResponse> page = connectionService.getEstablishedConnections(customUserDetails.getUserId(), pageable);
         return ResponseEntity.ok(page);
     }
 
-    @DeleteMapping("/disconnect/{currentUserId}/{targetUserId}")
+    @DeleteMapping("/disconnect/{targetUserId}")
     public ResponseEntity<Void> deleteConnection(
-            @PathVariable Long currentUserId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long targetUserId
     ) {
-        connectionService.deleteConnection(currentUserId, targetUserId);
+        connectionService.deleteConnection(customUserDetails.getUserId(), targetUserId);
         return ResponseEntity.noContent().build();
     }
-    // Inside ConnectionController.java
 
     @GetMapping("/all/status/{status}")
     public ResponseEntity<Page<ConnectionRequestDetails>> getRequestsByStatus(
@@ -110,24 +113,24 @@ public class ConnectionController {
         return ResponseEntity.ok(page);
     }
 
-    @GetMapping("/all/user/{userId}/status/{status1}/or/{status2}")
+    @GetMapping("/all/user/status/{status1}/or/{status2}")
     public ResponseEntity<Page<ConnectionRequestDetails>> getAllRequestsByTwoStatuses(
-            @PathVariable Long userId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable ConnectionRequestStatus status1,
             @PathVariable ConnectionRequestStatus status2,
             Pageable pageable
     ) {
-        Page<ConnectionRequestDetails> page = connectionService.getAllRequestsByTwoStatuses(userId, status1, status2, pageable);
+        Page<ConnectionRequestDetails> page = connectionService.getAllRequestsByTwoStatuses(customUserDetails.getUserId(), status1, status2, pageable);
         return ResponseEntity.ok(page);
     }
 
-    @GetMapping("/received/{receiverId}/status/{status}/sorted")
+    @GetMapping("/received/status/{status}/sorted")
     public ResponseEntity<Page<ConnectionRequestDetails>> getReceivedRequestsByStatusSorted(
-            @PathVariable Long receiverId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable ConnectionRequestStatus status,
             Pageable pageable
     ) {
-        Page<ConnectionRequestDetails> page = connectionService.getReceivedRequestsByStatusSorted(receiverId, status, pageable);
+        Page<ConnectionRequestDetails> page = connectionService.getReceivedRequestsByStatusSorted(customUserDetails.getUserId(), status, pageable);
         return ResponseEntity.ok(page);
     }
 

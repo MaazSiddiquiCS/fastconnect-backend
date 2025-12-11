@@ -15,11 +15,6 @@ public class ConnectionRequestSendDTO {
     @NotNull
     @Email(message = "Must be a valid email format")
     @ValidNUEmail
-    private String senderEmail;
-
-    @NotNull
-    @Email(message = "Must be a valid email format")
-    @ValidNUEmail
     private String receiverEmail;
 
 }

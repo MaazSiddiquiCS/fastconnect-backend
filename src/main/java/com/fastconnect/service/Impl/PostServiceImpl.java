@@ -4,10 +4,7 @@ import com.fastconnect.dto.CommentRequest;
 import com.fastconnect.dto.CommentResponse;
 import com.fastconnect.dto.PostRequest;
 import com.fastconnect.dto.PostResponse;
-import com.fastconnect.entity.Comment;
-import com.fastconnect.entity.Post;
-import com.fastconnect.entity.Reaction;
-import com.fastconnect.entity.User;
+import com.fastconnect.entity.*;
 import com.fastconnect.enums.EntityType;
 import com.fastconnect.enums.NotificationType;
 import com.fastconnect.enums.ReactionType;
@@ -15,16 +12,14 @@ import com.fastconnect.exception.PostNotFoundException;
 import com.fastconnect.exception.UserNotFoundException;
 import com.fastconnect.mapper.CommentMapper;
 import com.fastconnect.mapper.PostMapper;
-import com.fastconnect.repository.CommentRepository;
-import com.fastconnect.repository.PostRepository;
-import com.fastconnect.repository.ReactionRepository;
-import com.fastconnect.repository.UserRepository;
+import com.fastconnect.repository.*;
 import com.fastconnect.service.NotificationService;
 import com.fastconnect.service.PostService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +38,7 @@ public class PostServiceImpl implements PostService {
     private final ReactionRepository reactionRepository;
     private final PostMapper postMapper;
     private final CommentMapper commentMapper;
+    private final ConnectionRepository connectionRepository;
 
     private final NotificationService notificationService;
 
@@ -70,6 +66,7 @@ public class PostServiceImpl implements PostService {
         return postMapper.toDTO(updatedPost);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Override
     @Transactional(readOnly = true)
     public Page<PostResponse> getAllPosts(Pageable pageable) {
@@ -96,11 +93,22 @@ public class PostServiceImpl implements PostService {
     @Transactional(readOnly = true)
     @Override
     public Page<PostResponse> getFeedPosts(Long userId, Pageable pageable) {
-        // TODO: Once Connection Module is ready, filter this by friends only.
-        // For now, return Global Feed.
-        return postRepository.findAll(pageable)
+        // 1. Fetch all connections of the user
+        List<Connection> connections = connectionRepository.findByUser1UserIdOrUser2UserId(userId, userId, Pageable.unpaged()).getContent();
+        List<Long> friendIds = new java.util.ArrayList<>(connections.stream()
+                .map(connection -> connection.getUser1().getUserId().equals(userId)
+                        ? connection.getUser2().getUserId()
+                        : connection.getUser1().getUserId())
+                .toList());
+        friendIds.add(userId);
+
+        if (friendIds.isEmpty()) {
+            return Page.empty(pageable);
+        }
+        return postRepository.findAllByUserUserIdInOrderByCreatedAtDesc(friendIds, pageable)
                 .map(postMapper::toDTO);
     }
+
 
 
     @Override

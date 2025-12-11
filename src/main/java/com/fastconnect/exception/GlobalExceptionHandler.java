@@ -155,5 +155,15 @@ public class GlobalExceptionHandler{
         response.put("message", ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
-
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ApiError> handleInvalidTokenException(InvalidTokenException ex, HttpServletRequest request) {
+        ApiError error = new ApiError(
+                HttpStatus.NOT_FOUND,
+                ex.getMessage(),
+                LocalDateTime.now(),
+                request.getRequestURI(),
+                "The requested post does not exist"
+        );
+        return new ResponseEntity<>(error, error.getStatus());
+    }
 }
