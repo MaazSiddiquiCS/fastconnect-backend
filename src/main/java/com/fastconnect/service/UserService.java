@@ -41,5 +41,7 @@ public interface UserService {
 
     FacultyPageResponse createOrUpdateFacultyPage(Long userId, FacultyPageRequest request);
     FacultyPageResponse getFacultyPage(Long userId);;
+    public List<ProfileResponse> getFollowersOfFaculty(Long facultyId);
+    public void followFaculty(Long userId, Long facultyId);
 
 }

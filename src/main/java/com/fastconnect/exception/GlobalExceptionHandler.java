@@ -166,4 +166,16 @@ public class GlobalExceptionHandler{
         );
         return new ResponseEntity<>(error, error.getStatus());
     }
+    @ExceptionHandler(AlreadyFollowingException.class)
+    public ResponseEntity<ApiError> handleAlreadyFollowingException(AlreadyFollowingException ex, HttpServletRequest request) {
+        ApiError error = new ApiError(
+                HttpStatus.BAD_REQUEST,
+                ex.getMessage(),
+                LocalDateTime.now(),
+                request.getRequestURI(),
+                "The requested post does not exist"
+        );
+        return new ResponseEntity<>(error, error.getStatus());
+    }
+
 }
