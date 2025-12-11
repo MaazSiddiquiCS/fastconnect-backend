@@ -162,4 +162,19 @@ public class UserController {
     public ResponseEntity<FacultyPageResponse> getFacultyPage(@PathVariable Long userId) {
         return ResponseEntity.ok(userService.getFacultyPage(userId));
     }
+
+    @PostMapping("/faculty/{facultyId}/follow")
+    public ResponseEntity<String> followFaculty(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable Long facultyId
+    ) {
+        userService.followFaculty(user.getUserId(), facultyId);
+        return ResponseEntity.ok("Followed successfully.");
+    }
+
+    @GetMapping("/faculty/{facultyId}/followers")
+    public ResponseEntity<List<ProfileResponse>> getFollowers(@PathVariable Long facultyId) {
+        return ResponseEntity.ok(userService.getFollowersOfFaculty(facultyId));
+    }
+
 }

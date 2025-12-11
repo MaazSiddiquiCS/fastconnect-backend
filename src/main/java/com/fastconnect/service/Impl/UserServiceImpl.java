@@ -1,6 +1,7 @@
 package com.fastconnect.service.Impl;
 
 import com.fastconnect.dto.*;
+import com.fastconnect.entity.FacultyFollowers;
 import com.fastconnect.entity.FacultyPage;
 import com.fastconnect.entity.Profile;
 import com.fastconnect.entity.User;
@@ -11,6 +12,7 @@ import com.fastconnect.exception.*;
 import com.fastconnect.mapper.FacultyPageMapper;
 import com.fastconnect.mapper.ProfileMapper;
 import com.fastconnect.mapper.UserMapper;
+import com.fastconnect.repository.FacultyFollowersRepository;
 import com.fastconnect.repository.FacultyPageRepository;
 import com.fastconnect.repository.ProfileRepository;
 import com.fastconnect.repository.UserRepository;
@@ -37,6 +39,7 @@ public class UserServiceImpl implements UserService {
 
     private final FacultyPageRepository facultyPageRepository;
     private final FacultyPageMapper facultyPageMapper;
+    private final FacultyFollowersRepository facultyFollowersRepository;
 
     @Override
     public User saveUserEntity(User user) {
@@ -239,4 +242,36 @@ public class UserServiceImpl implements UserService {
 
         return facultyPageMapper.toDTO(facultyPage);
     }
+
+    public void followFaculty(Long userId, Long facultyId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        FacultyPage faculty = facultyPageRepository.findById(facultyId)
+                .orElseThrow(() -> new FacultyPageNotFoundException(facultyId));
+
+        if (facultyFollowersRepository.existsByUserAndFacultyPage(user, faculty)) {
+            throw new AlreadyFollowingException("You are already following this faculty/society");
+        }
+
+        FacultyFollowers follower = new FacultyFollowers();
+        follower.setUser(user);
+        follower.setFacultyPage(faculty);
+
+        facultyFollowersRepository.save(follower);
+    }
+    public List<ProfileResponse> getFollowersOfFaculty(Long facultyId) {
+
+        FacultyPage faculty = facultyPageRepository.findById(facultyId)
+                .orElseThrow(() -> new FacultyPageNotFoundException(facultyId));
+
+        List<FacultyFollowers> followers = facultyFollowersRepository.findAllByFacultyPage(faculty);
+
+        // convert User → ProfileResponse
+        return followers.stream()
+                .map(f -> profileMapper.toDTO(f.getUser().getProfile()))
+                .toList();
+    }
+
 }
