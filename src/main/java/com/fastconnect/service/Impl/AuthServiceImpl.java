@@ -8,10 +8,9 @@ import com.fastconnect.entity.User;
 import com.fastconnect.enums.AccountStatus;
 import com.fastconnect.enums.RoleType;
 import com.fastconnect.exception.EmailAlreadyExistsException;
-import com.fastconnect.exception.UserEmailNotFoundException;
+import com.fastconnect.exception.InvalidTokenException;
 import com.fastconnect.mapper.UserMapper;
 import com.fastconnect.repository.AuthTokenRepository;
-import com.fastconnect.repository.UserRepository;
 import com.fastconnect.service.AuthService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -80,7 +79,7 @@ public class AuthServiceImpl implements AuthService {
 
 
         AuthToken authToken = authTokenRepository.findByRefreshToken(refreshTokenString)
-                .orElseThrow(() -> new RuntimeException("Refresh Token not found"));
+                .orElseThrow(() -> new InvalidTokenException("Refresh Token not found"));
 
         if (authToken.getRevoked() || authToken.getExpiresAt().isBefore(LocalDateTime.now())) {
             throw new BadCredentialsException("Refresh Token expired/revoked");
@@ -108,6 +107,14 @@ public class AuthServiceImpl implements AuthService {
                 user.getEmail(),
                 user.getRoleType()
         );
+    }
+
+    @Override
+    public void logoutUser(String refreshToken) {
+        AuthToken authToken=authTokenRepository.findByRefreshToken(refreshToken)
+                .orElseThrow(() -> new InvalidTokenException("Refresh Token not found"));
+        authToken.setRevoked(true);
+        authTokenRepository.save(authToken);
     }
 
 }

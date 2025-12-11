@@ -16,6 +16,7 @@ import com.fastconnect.repository.ProfileRepository;
 import com.fastconnect.repository.UserRepository;
 import com.fastconnect.service.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
@@ -33,7 +34,7 @@ public class UserServiceImpl implements UserService {
     private final ProfileRepository profileRepository;
     private final ProfileMapper profileMapper;
 
-    // ✅ ADDED THESE MISSING FIELDS
+
     private final FacultyPageRepository facultyPageRepository;
     private final FacultyPageMapper facultyPageMapper;
 
@@ -42,6 +43,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(user);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Override
     @Transactional(readOnly = true)
     public Page<UserResponse> getAllUsers(Pageable pageable)
@@ -50,6 +52,7 @@ public class UserServiceImpl implements UserService {
         return users.map(userMapper::toDTO);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Override
     @Transactional(readOnly = true)
     public Page<UserResponse> getUsersByAccountStatus(AccountStatus accountStatus, Pageable pageable) {
@@ -78,12 +81,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(()->new UserNotFoundException(id));
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<UserResponse> getUsersByRoleType(RoleType roleType) {
-        List<User> users =userRepository.findByRoleType(roleType);
-        return userMapper.toDTOList(users);
-    }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -91,12 +89,14 @@ public class UserServiceImpl implements UserService {
         return userRepository.existsByEmail(email);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Override
     @Transactional(readOnly = true)
     public boolean existsByRoleType(RoleType roleType) {
         return userRepository.existsByRoleType(roleType);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Override
     @Transactional(readOnly = true)
     public boolean existsByUserId(Long id) {
@@ -115,12 +115,6 @@ public class UserServiceImpl implements UserService {
         return profileRepository.existsByRollNumber(rollNumber);
     }
 
-    @Override
-    public void deleteUserById(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(()-> new UserNotFoundException(userId));
-        userRepository.delete(user);
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -217,6 +211,7 @@ public class UserServiceImpl implements UserService {
 
     // --- FACULTY METHODS ---
 
+    @PreAuthorize("hasAnyRole('FACULTY','ADMIN')")
     @Override
     @Transactional
     public FacultyPageResponse createOrUpdateFacultyPage(Long userId, FacultyPageRequest request) {

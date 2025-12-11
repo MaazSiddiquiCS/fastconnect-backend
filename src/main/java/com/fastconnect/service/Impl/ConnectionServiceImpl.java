@@ -7,6 +7,8 @@ import com.fastconnect.entity.Connection;
 import com.fastconnect.entity.ConnectionRequest;
 import com.fastconnect.entity.User;
 import com.fastconnect.enums.ConnectionRequestStatus;
+import com.fastconnect.enums.EntityType;
+import com.fastconnect.enums.NotificationType;
 import com.fastconnect.exception.ConnectionRequestAlreadySent;
 import com.fastconnect.exception.ConnectionRequestNotFoundException;
 import com.fastconnect.exception.UserEmailNotFoundException;
@@ -16,9 +18,11 @@ import com.fastconnect.repository.ConnectionRepository;
 import com.fastconnect.repository.ConnectionRequestRepository;
 import com.fastconnect.repository.UserRepository;
 import com.fastconnect.service.ConnectionService;
+import com.fastconnect.service.NotificationService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +39,7 @@ public class ConnectionServiceImpl implements ConnectionService {
     private final ConnectionRequestMapper  connectionRequestMapper;
     private final UserRepository userRepository;
     private final ConnectionMapper connectionMapper;
+    private final NotificationService notificationService;
 
 
     @Override
@@ -60,7 +65,18 @@ public class ConnectionServiceImpl implements ConnectionService {
         connectionRequest.setSender(sender);
         connectionRequest.setReceiver(receiver);
         connectionRequest.setStatus(ConnectionRequestStatus.PENDING);
-        return connectionRequestMapper.toDetailsDTO(connectionRequestRepository.save(connectionRequest));
+        ConnectionRequest savedRequest = connectionRequestRepository.save(connectionRequest);
+
+        notificationService.createNotification(
+                sender.getUserId(),
+                receiver.getProfile().getFullName() + " sent you connection invite",
+                NotificationType.CONNECTION,
+                EntityType.CONNECTION,
+                savedRequest.getConnectionRequestId()
+        );
+
+        return connectionRequestMapper.toDetailsDTO(savedRequest);
+
     }
 
     @Override
@@ -88,19 +104,26 @@ public class ConnectionServiceImpl implements ConnectionService {
         }
 
         ConnectionRequestStatus desiredStatus = actionDTO.getStatus();
+        connectionRequest.setStatus(desiredStatus);
+        connectionRequest.setRespondedAt(LocalDateTime.now());
+
+        // Save the connection request first to get an ID if needed for notifications
+        connectionRequestRepository.save(connectionRequest);
+
+        User sender = connectionRequest.getSender();
+        User receiver = connectionRequest.getReceiver();
+
         if (desiredStatus == ConnectionRequestStatus.REJECTED) {
-            cleanupConnectionRequest(connectionRequest.getSender().getUserId(), receiverId);
+            // Clean up pending request if rejected
+            cleanupConnectionRequest(sender.getUserId(), receiver.getUserId());
         }
+
         if (desiredStatus == ConnectionRequestStatus.ACCEPTED) {
-
-            User sender = connectionRequest.getSender();
-            User receiver = connectionRequest.getReceiver();
-
             Long minId = Math.min(sender.getUserId(), receiver.getUserId());
             Long maxId = Math.max(sender.getUserId(), receiver.getUserId());
 
+            // Only create connection if it doesn't already exist
             if (!connectionRepository.findByUser1UserIdAndUser2UserId(minId, maxId).isPresent()) {
-
                 User user1 = (sender.getUserId().equals(minId)) ? sender : receiver;
                 User user2 = (sender.getUserId().equals(maxId)) ? sender : receiver;
 
@@ -109,15 +132,21 @@ public class ConnectionServiceImpl implements ConnectionService {
                 connection.setUser1(user1);
                 connection.setUser2(user2);
                 connectionRepository.save(connection);
+
+                // Send notification after saving the connection
+                notificationService.createNotification(
+                        sender.getUserId(),
+                        receiver.getProfile().getFullName() + " accepted your connection invite",
+                        NotificationType.CONNECTION,
+                        EntityType.CONNECTION,
+                        connectionRequest.getConnectionRequestId()
+                );
             }
-
-            connectionRequest.setStatus(desiredStatus);
-            connectionRequest.setRespondedAt(LocalDateTime.now());
-
-            return connectionRequestMapper.toDetailsDTO(connectionRequestRepository.save(connectionRequest));
         }
-        return null;
+
+        return connectionRequestMapper.toDetailsDTO(connectionRequest);
     }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -141,6 +170,7 @@ public class ConnectionServiceImpl implements ConnectionService {
         return requestsPage.map(connectionRequestMapper::toDetailsDTO);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Override
     @Transactional(readOnly = true)
     public Optional<ConnectionRequestDetails> findConnectionRequestBetweenUsers(Long userAId, Long userBId) {

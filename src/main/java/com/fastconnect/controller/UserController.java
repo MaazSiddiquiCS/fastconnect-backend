@@ -6,11 +6,13 @@ import com.fastconnect.dto.UserResponse;
 import com.fastconnect.enums.AccountStatus;
 import com.fastconnect.enums.Departments;
 import com.fastconnect.enums.RoleType;
+import com.fastconnect.security.CustomUserDetails;
 import com.fastconnect.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,7 +28,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<Page<UserResponse>> findAll(Pageable pageable) {
         Page<UserResponse> userResponse=userService.getAllUsers(pageable);
         return ResponseEntity.ok(userResponse);
@@ -39,9 +41,9 @@ public class UserController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable long userId) {
-        UserResponse userResponse=userService.getUserById(userId);
+    @GetMapping("/")
+    public ResponseEntity<UserResponse> getUserById(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        UserResponse userResponse=userService.getUserById(customUserDetails.getUserId());
         return ResponseEntity.ok(userResponse);
     }
 
@@ -52,12 +54,6 @@ public class UserController {
         return ResponseEntity.ok(userResponse);
     }
 
-    @GetMapping("/search-by-role-type")
-    public ResponseEntity <List<UserResponse>> getUserByRoleType(@RequestParam RoleType roleType, Pageable pageable) {
-        List<UserResponse> userResponse=userService
-                .getUsersByRoleType(roleType);
-        return ResponseEntity.ok(userResponse);
-    }
 
     @GetMapping("/check-id/{user_id}")
     public ResponseEntity<Boolean> existsByUserId(@PathVariable long user_id) {
@@ -69,12 +65,6 @@ public class UserController {
     public ResponseEntity<Boolean> existsByEmail(@PathVariable String email) {
         boolean exists=userService.existsByEmail(email);
         return ResponseEntity.ok(exists);
-    }
-
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> deleteUserById(@PathVariable long userId) {
-        userService.deleteUserById(userId);
-        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/profiles/")
@@ -139,12 +129,12 @@ public class UserController {
         return ResponseEntity.ok(profiles);
     }
 
-    @PostMapping("/profile/{userId}")
+    @PostMapping("/profile")
     public ResponseEntity<ProfileResponse> createProfile(
             @Valid
             @RequestBody ProfileRequest profileRequest,
-            @PathVariable long userId) {
-        ProfileResponse newProfile = userService.createProfile(profileRequest, userId);
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        ProfileResponse newProfile = userService.createProfile(profileRequest, customUserDetails.getUserId());
         return ResponseEntity.status(HttpStatus.CREATED).body(newProfile);
     }
 
@@ -158,18 +148,17 @@ public class UserController {
         return ResponseEntity.ok(updatedProfile);
     }
 
-    //TODO soft delete user
+//TODO soft delete user
 
-    @PostMapping("/{userId}/faculty-page")
-    @PreAuthorize("hasRole('FACULTY') or #userId == principal.id") // Security Check
+    @PostMapping("/faculty-page")// Security Check
     public ResponseEntity<FacultyPageResponse> createFacultyPage(
-            @PathVariable Long userId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Valid @RequestBody FacultyPageRequest request) {
-        return ResponseEntity.ok(userService.createOrUpdateFacultyPage(userId, request));
+        return ResponseEntity.ok(userService.createOrUpdateFacultyPage(customUserDetails.getUserId(), request));
     }
 
     // 2. Get Faculty Page (Public)
-    @GetMapping("/{userId}/faculty-page")
+    @GetMapping("/faculty-page/{userId}")
     public ResponseEntity<FacultyPageResponse> getFacultyPage(@PathVariable Long userId) {
         return ResponseEntity.ok(userService.getFacultyPage(userId));
     }

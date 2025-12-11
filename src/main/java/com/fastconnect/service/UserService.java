@@ -18,8 +18,6 @@ public interface UserService {
     Page<UserResponse> getUsersByAccountStatus(AccountStatus accountStatus, Pageable pageable);
     Optional<UserResponse> getUserByEmail(String email);
     UserResponse getUserById(Long id);
-    List<UserResponse> getUsersByRoleType(RoleType roleType);
-    void deleteUserById(Long id);
 
     //CRUD-forProfile
     Page<ProfileResponse> getAllProfiles(Pageable pageable);
