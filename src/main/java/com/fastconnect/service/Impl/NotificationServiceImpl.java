@@ -61,4 +61,12 @@ public class NotificationServiceImpl implements NotificationService {
         notificationRepository.save(notification);
     }
 
+    @Override
+    public void markAllAsRead(Long userId) {
+        int updatedCount = notificationRepository.markAllAsReadByUserId(userId);
+
+        // Optional: Log the count of records updated
+        System.out.println("Marked " + updatedCount + " notifications as read for user " + userId);
+    }
+
 }
