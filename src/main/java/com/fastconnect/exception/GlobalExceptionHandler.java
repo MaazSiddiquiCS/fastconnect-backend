@@ -177,5 +177,26 @@ public class GlobalExceptionHandler{
         );
         return new ResponseEntity<>(error, error.getStatus());
     }
-
+    @ExceptionHandler(SocietyAlreadyExistsException.class)
+    public ResponseEntity<ApiError> handleSocietyAlreadyExists(SocietyAlreadyExistsException ex, HttpServletRequest request) {
+        ApiError error = new ApiError(
+                HttpStatus.CONFLICT,
+                ex.getMessage(),
+                LocalDateTime.now(),
+                request.getRequestURI(),
+                "Society already exists, or user is already a member/follower"
+        );
+        return new ResponseEntity<>(error, error.getStatus());
+    }
+    @ExceptionHandler(SocietyNotFoundException.class)
+    public ResponseEntity<ApiError> handleSocietyNotFound(SocietyNotFoundException ex, HttpServletRequest request) {
+        ApiError error = new ApiError(
+                HttpStatus.NOT_FOUND,
+                ex.getMessage(),
+                LocalDateTime.now(),
+                request.getRequestURI(),
+                "The requested Society resource was not found"
+        );
+        return new ResponseEntity<>(error, error.getStatus());
+    }
 }

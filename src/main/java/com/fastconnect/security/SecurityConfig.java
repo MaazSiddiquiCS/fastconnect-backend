@@ -46,6 +46,9 @@ public class SecurityConfig {
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
 
                         .requestMatchers("/api/users/faculty-page").hasAnyRole("ADMIN", "FACULTY")
+                        .requestMatchers("/api/societies/create-society/**").hasAnyRole("ADMIN", "SOCIETY_ADMIN")
+                        .requestMatchers("api/societies/update/**").hasAnyRole("ADMIN", "SOCIETY_ADMIN")
+                        .requestMatchers("/api/societies/change-membership/**").hasAnyRole("ADMIN", "SOCIETY_ADMIN")
                         .requestMatchers(
                                 "/api/users/all",
                                 "/api/admin/**",
