@@ -34,4 +34,4 @@ build/
 # .env
 src/main/resources/.env
 *.env
-
+src/main/resources/data.sql
