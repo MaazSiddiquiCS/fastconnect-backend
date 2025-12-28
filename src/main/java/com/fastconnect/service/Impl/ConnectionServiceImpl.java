@@ -19,6 +19,7 @@ import com.fastconnect.repository.ConnectionRequestRepository;
 import com.fastconnect.repository.UserRepository;
 import com.fastconnect.service.ConnectionService;
 import com.fastconnect.service.NotificationService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @Transactional
@@ -41,41 +43,99 @@ public class ConnectionServiceImpl implements ConnectionService {
     private final ConnectionMapper connectionMapper;
     private final NotificationService notificationService;
 
+    private final ObjectMapper objectMapper; // ADD THIS FIELD
 
+    // ⚠️ WARNING: Not suitable for multi-instance production environments!
+    private static final ConcurrentHashMap<String, IdempotencyRecord> IDEMPOTENCY_CACHE = new ConcurrentHashMap<>();
+
+    // Simple inner class to hold the map data
+    private static class IdempotencyRecord {
+        final String status; // Can hold "PROCESSING" or the final JSON result
+        final LocalDateTime expiryTime;
+
+        public IdempotencyRecord(String status, LocalDateTime expiryTime) {
+            this.status = status;
+            this.expiryTime = expiryTime;
+        }
+    }
+
+    // Helper method to handle cached response retrieval (used by both endpoints)
+    private <T> T handleCachedResponse(String idempotencyKey, Class<T> responseClass) {
+        IdempotencyRecord existingRecord = IDEMPOTENCY_CACHE.get(idempotencyKey);
+
+        if (existingRecord == null || existingRecord.expiryTime.isBefore(LocalDateTime.now())) {
+            // Key expired or disappeared. Force creation of a new lock/record.
+            return null;
+        }
+
+        if (!"PROCESSING".equals(existingRecord.status)) {
+            // Found final successful result.
+            try {
+                return objectMapper.readValue(existingRecord.status, responseClass);
+            } catch (Exception e) {
+                throw new RuntimeException("Error deserializing cached response.", e);
+            }
+        }
+
+        // Key is 'PROCESSING' - duplicate request in progress.
+        throw new IllegalStateException("Duplicate request detected and currently processing.");
+    }
     @Override
-    public ConnectionRequestDetails createConnectionRequest(String senderEmail, String receiverEmail) {
-        User sender=userRepository.findByEmail(senderEmail)
-                .orElseThrow(() -> new UserEmailNotFoundException(senderEmail));
-        User receiver =userRepository.findByEmail(receiverEmail)
-                .orElseThrow(()->new UserEmailNotFoundException(receiverEmail));
+    public ConnectionRequestDetails createConnectionRequest(String senderEmail, String receiverEmail,String idempotencyKey) {
+        if (idempotencyKey != null && !idempotencyKey.trim().isEmpty()) {
+            ConnectionRequestDetails cachedDetails = handleCachedResponse(idempotencyKey, ConnectionRequestDetails.class);
+            if (cachedDetails != null) {
+                return cachedDetails;
+            }
 
-        if (sender.getUserId().equals(receiver.getUserId())) {
-            throw new IllegalArgumentException("Cannot send a connection request to yourself.");
+            // Acquire lock
+            IDEMPOTENCY_CACHE.put(idempotencyKey, new IdempotencyRecord("PROCESSING", LocalDateTime.now().plusSeconds(10)));
         }
-        Long minId = Math.min(sender.getUserId(), receiver.getUserId());
-        Long maxId = Math.max(sender.getUserId(), receiver.getUserId());
-        if (connectionRepository.findByUser1UserIdAndUser2UserId(minId, maxId).isPresent() ) {
-            throw new ConnectionRequestAlreadySent("Users are already connected.");
-        }
-        if (connectionRequestRepository.findBetweenUsers(minId, maxId).isPresent()) {
-            throw new ConnectionRequestAlreadySent("A pending Connection request already exists.");
-        }
-        ConnectionRequest connectionRequest= new ConnectionRequest();
-        connectionRequest.setCreatedAt(LocalDateTime.now());
-        connectionRequest.setSender(sender);
-        connectionRequest.setReceiver(receiver);
-        connectionRequest.setStatus(ConnectionRequestStatus.PENDING);
-        ConnectionRequest savedRequest = connectionRequestRepository.save(connectionRequest);
 
-        notificationService.createNotification(
-                sender.getUserId(),
-                receiver.getProfile().getFullName() + " sent you connection invite",
-                NotificationType.CONNECTION,
-                EntityType.CONNECTION,
-                savedRequest.getConnectionRequestId()
-        );
+        try {
+            User sender = userRepository.findByEmail(senderEmail)
+                    .orElseThrow(() -> new UserEmailNotFoundException(senderEmail));
+            User receiver = userRepository.findByEmail(receiverEmail)
+                    .orElseThrow(() -> new UserEmailNotFoundException(receiverEmail));
 
-        return connectionRequestMapper.toDetailsDTO(savedRequest);
+            if (sender.getUserId().equals(receiver.getUserId())) {
+                throw new IllegalArgumentException("Cannot send a connection request to yourself.");
+            }
+            Long minId = Math.min(sender.getUserId(), receiver.getUserId());
+            Long maxId = Math.max(sender.getUserId(), receiver.getUserId());
+            if (connectionRepository.findByUser1UserIdAndUser2UserId(minId, maxId).isPresent()) {
+                throw new ConnectionRequestAlreadySent("Users are already connected.");
+            }
+            if (connectionRequestRepository.findBetweenUsers(minId, maxId).isPresent()) {
+                throw new ConnectionRequestAlreadySent("A pending Connection request already exists.");
+            }
+            ConnectionRequest connectionRequest = new ConnectionRequest();
+            connectionRequest.setCreatedAt(LocalDateTime.now());
+            connectionRequest.setSender(sender);
+            connectionRequest.setReceiver(receiver);
+            connectionRequest.setStatus(ConnectionRequestStatus.PENDING);
+            ConnectionRequest savedRequest = connectionRequestRepository.save(connectionRequest);
+
+            notificationService.createNotification(
+                    sender.getUserId(),
+                    receiver.getProfile().getFullName() + " sent you connection invite",
+                    NotificationType.CONNECTION,
+                    EntityType.CONNECTION,
+                    savedRequest.getConnectionRequestId()
+            );
+            if (idempotencyKey != null && !idempotencyKey.trim().isEmpty()) {
+                String responseJson = objectMapper.writeValueAsString(connectionRequestMapper.toDetailsDTO(savedRequest));
+                IDEMPOTENCY_CACHE.put(idempotencyKey, new IdempotencyRecord(responseJson, LocalDateTime.now().plusSeconds(3600)));
+            }
+            return connectionRequestMapper.toDetailsDTO(savedRequest);
+        }
+        catch (Exception e) {
+            // --- IDEMPOTENCY CLEANUP ---
+            if (idempotencyKey != null && !idempotencyKey.trim().isEmpty()) {
+                IDEMPOTENCY_CACHE.remove(idempotencyKey);
+            }
+            throw new RuntimeException("Error creating connection request.", e);
+        }
 
     }
 

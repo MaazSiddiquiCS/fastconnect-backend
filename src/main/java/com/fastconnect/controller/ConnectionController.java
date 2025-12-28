@@ -8,6 +8,7 @@ import com.fastconnect.enums.ConnectionRequestStatus;
 import com.fastconnect.security.CustomUserDetails;
 import com.fastconnect.service.ConnectionService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -53,10 +54,18 @@ public class ConnectionController {
     @PostMapping("/send-request")
     public ResponseEntity<ConnectionRequestDetails> sendConnectionRequest(@Valid
                                                                               @RequestBody ConnectionRequestSendDTO connectionRequestSendDTO,
-                                                                          @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+                                                                          @AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                                                          @Parameter(
+                                                                                  name = "Idempotency-Key",
+                                                                                  description = "Unique key to ensure the request is processed only once.",
+                                                                                  in = io.swagger.v3.oas.annotations.enums.ParameterIn.HEADER,
+                                                                                  required = false
+                                                                          )
+                                                                              @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey) {
         ConnectionRequestDetails details = connectionService.createConnectionRequest(
                 customUserDetails.getUsername(),
-                connectionRequestSendDTO.getReceiverEmail()
+                connectionRequestSendDTO.getReceiverEmail(),
+                idempotencyKey
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(details);
     }

@@ -14,7 +14,7 @@ import java.util.Optional;
 public interface ConnectionService {
 
     // --- 1. Request Creation and Withdrawal ---
-    ConnectionRequestDetails createConnectionRequest(String senderEmail, String receiverEmail);
+    ConnectionRequestDetails createConnectionRequest(String senderEmail, String receiverEmail,String idempotencyKey);
 
     void withdrawConnectionRequest(Long requestId, String senderEmail) throws AccessDeniedException;
 
